@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import authRoutes from './routes/auth.js';
 import clinicsRoutes from './routes/clinics.js';
+import patientsRoutes from './routes/patients.js';
+import teethRoutes from './routes/teeth.js';
 import { verifyToken } from './middleware/auth.js';
 import { pool } from './db/index.js';
 
@@ -11,9 +13,28 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
+const allowedOrigins = new Set(
+  [
+    process.env.CLIENT_URL,
+    'http://localhost:5173',
+    'http://localhost:5174',
+  ].filter(Boolean)
+);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow non-browser requests (no Origin header)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );
@@ -53,6 +74,8 @@ app.get('/api/debug', async (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/clinics', verifyToken, clinicsRoutes);
+app.use('/api/patients', patientsRoutes);
+app.use('/api/teeth', teethRoutes);
 
 app.use((err, _req, res, _next) => {
   const status = err.statusCode || 500;
