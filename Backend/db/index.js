@@ -17,7 +17,7 @@ const parseConnectionString = () => {
   try {
     const url = new URL(connectionString);
     
-    return {
+    const config = {
       user: url.username,
       password: url.password,
       host: url.hostname,
@@ -31,8 +31,12 @@ const parseConnectionString = () => {
       idleTimeoutMillis: 30000,
       max: 20, // Connection pool size
     };
+    
+    console.log(`[DB] Connecting to ${config.host}:${config.port}/${config.database} with IPv4 preference`);
+    
+    return config;
   } catch (error) {
-    console.error('Failed to parse DATABASE_URL:', error);
+    console.error('[DB] Failed to parse DATABASE_URL:', error.message);
     throw error;
   }
 };
@@ -41,11 +45,20 @@ export const pool = new Pool(parseConnectionString());
 
 // Log connection events for debugging
 pool.on('connect', () => {
-  console.log('✓ Database connection established (IPv4 preference applied)');
+  console.log('[DB] ✓ Database connection established (IPv4 preference applied)');
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle database client:', err);
+  console.error('[DB] ✗ Unexpected error on idle database client:', err.message);
+});
+
+// Test connection on startup
+pool.query('SELECT NOW()', (err, result) => {
+  if (err) {
+    console.error('[DB] ✗ Initial connection test FAILED:', err.message);
+  } else {
+    console.log('[DB] ✓ Initial connection test SUCCESS at', result.rows[0].now);
+  }
 });
 
 export const query = (text, params = []) => pool.query(text, params);
