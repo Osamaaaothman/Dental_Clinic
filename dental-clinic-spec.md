@@ -73,6 +73,7 @@ server/
 │   ├── sessions.js
 │   ├── appointments.js
 │   ├── attachments.js
+│   ├── payments.js
 │   └── finance.js
 ├── controllers/
 │   ├── auth.js
@@ -81,6 +82,7 @@ server/
 │   ├── sessions.js
 │   ├── appointments.js
 │   ├── attachments.js
+│   ├── payments.js
 │   └── finance.js
 ├── services/
 │   ├── patients.js
@@ -88,6 +90,7 @@ server/
 │   ├── sessions.js
 │   ├── appointments.js
 │   ├── attachments.js
+│   ├── payments.js
 │   ├── finance.js
 │   ├── cloudinary.js         # Cloudinary upload helper
 │   ├── resend.js             # Email sending helper
@@ -185,11 +188,31 @@ teeth_treated     JSONB          -- array of tooth numbers e.g. [16, 36]
 medications       TEXT           -- prescriptions / instructions
 next_visit_notes  TEXT           -- notes for next appointment
 amount_charged    DECIMAL(10,2) DEFAULT 0
-amount_paid       DECIMAL(10,2) DEFAULT 0
-payment_method    VARCHAR(20)    -- 'cash' | 'card' | 'insurance'
-payment_status    VARCHAR(20)    -- 'paid' | 'partial' | 'pending'
+payment_status    VARCHAR(20)    DEFAULT 'pending'
+                                 -- 'paid' | 'partial' | 'pending'
+                                 -- ⚡ synced by service layer after each payment
 created_at        TIMESTAMP DEFAULT now()
 ```
+
+> ⚠️ `amount_paid` and `payment_method` are **removed** from this table.
+> They now live in the `payments` table.
+> `amount_paid = SUM(payments.amount)` — always computed, never stored.
+
+### `payments`
+```sql
+id              UUID PRIMARY KEY DEFAULT gen_random_uuid()
+session_id      UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE
+patient_id      UUID NOT NULL REFERENCES patients(id)
+clinic_id       UUID NOT NULL REFERENCES clinics(id)
+amount          DECIMAL(10,2) NOT NULL  -- positive = payment received, negative = refund
+payment_method  VARCHAR(20) NOT NULL   -- 'cash' | 'card' | 'insurance'
+payment_date    TIMESTAMP DEFAULT now()
+notes           TEXT                   -- e.g. 'First installment', 'Insurance reimbursement'
+created_at      TIMESTAMP DEFAULT now()
+```
+
+> Append-only table. To issue a refund, INSERT a new row with negative `amount`.
+> Never UPDATE or DELETE existing rows — they form a financial audit trail.
 
 ### `appointments`
 ```sql
@@ -242,17 +265,20 @@ clinics
   └── patients (clinic_id)
   └── sessions (clinic_id)
   └── appointments (clinic_id)
+  └── payments (clinic_id)
 
 patients
   └── teeth (patient_id)           -- 32 rows auto-created on patient insert
   └── sessions (patient_id)
   └── appointments (patient_id)
   └── attachments (patient_id)     -- session_id can be NULL
+  └── payments (patient_id)
 
 sessions
   └── tooth_history (session_id)
   └── attachments (session_id)
   └── appointments (session_id)    -- optional link after session
+  └── payments (session_id)        -- one session can have multiple payment installments
 
 teeth
   └── tooth_history (tooth_id)
@@ -329,7 +355,7 @@ teeth
 - Fill: chief complaint, diagnosis, treatment done
 - Select teeth worked on (from the teeth chart, multi-select)
 - Medications / instructions
-- Financial: amount charged, amount paid, payment method
+- Financial: amount charged only (payments added separately via the Payments panel)
 - Upload attachments (X-rays, photos) → Cloudinary
 - On save: update selected teeth statuses, insert into `tooth_history`
 
@@ -347,6 +373,14 @@ teeth
   2. **Patient attachment**: `session_id` is NULL (e.g. old X-rays, referral letters)
 - Supported file types: images (JPEG, PNG), PDF, DICOM (if possible)
 - Patient profile shows all attachments (both types) in one view
+
+### Payments & Installments
+- Each session shows its full payment history (list of installments)
+- Doctor can add a new payment at any time: enter amount, method (cash/card/insurance), optional note
+- System auto-computes `amount_paid = SUM(payments)` and `balance = amount_charged - amount_paid`
+- `payment_status` on the session is updated automatically after each payment
+- To reverse a payment, insert a negative-amount row (refund) — no hard deletes
+- Patient profile shows a consolidated view: total charged across all sessions, total paid, overall balance
 
 ### Financial Reports
 - Per-patient: total charged, total paid, remaining balance, list of payments per session
@@ -407,6 +441,14 @@ DELETE /api/appointments/:id
 GET    /api/patients/:id/attachments
 POST   /api/attachments              -- multipart/form-data, upload to Cloudinary
 DELETE /api/attachments/:id
+```
+
+### Payments
+```
+GET    /api/sessions/:id/payments        -- all payments for a session
+POST   /api/sessions/:id/payments        -- add a payment installment
+GET    /api/patients/:id/payments        -- full payment history for a patient
+DELETE /api/payments/:id                 -- NOT a real delete — inserts a reversal row
 ```
 
 ### Finance
