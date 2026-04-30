@@ -15,8 +15,8 @@ function Login() {
   const error = useAuthStore((state) => state.error);
 
   const [formData, setFormData] = useState({
-    email: 'admin@gmail.com',
-    password: 'Oossaammaa1234@',
+    email: '',
+    password: '',
   });
 
   if (token && selectedClinic) {
@@ -39,9 +39,9 @@ function Login() {
 
   return (
     <AnimatedPage className="page-shell relative grid place-items-center overflow-hidden">
-      <div className="floating-shape right-[-110px] top-[-80px] h-72 w-72 bg-secondary/25" aria-hidden="true" />
-      <div className="floating-shape bottom-[-120px] left-[-80px] h-80 w-80 bg-primary/25" aria-hidden="true" />
-      <div className="floating-shape right-[40%] top-[58%] h-60 w-60 bg-accent/20" aria-hidden="true" />
+      <div className="floating-shape right-[-80px] top-[-70px] h-56 w-56 bg-secondary/25 sm:right-[-110px] sm:top-[-80px] sm:h-72 sm:w-72" aria-hidden="true" />
+      <div className="floating-shape bottom-[-90px] left-[-60px] h-64 w-64 bg-primary/25 sm:bottom-[-120px] sm:left-[-80px] sm:h-80 sm:w-80" aria-hidden="true" />
+      <div className="floating-shape right-[42%] top-[64%] hidden h-56 w-56 bg-accent/20 sm:block sm:h-60 sm:w-60" aria-hidden="true" />
 
       <motion.div
         className="glass-card w-full max-w-md"
@@ -50,20 +50,19 @@ function Login() {
         animate="animate"
         transition={{ duration: 0.35, ease: smoothEase }}
       >
-        <div className="card-body gap-4 p-7 sm:p-8">
+        <div className="card-body gap-4 p-5 sm:p-8">
           <motion.div variants={riseItem} className="flex items-center justify-between">
             <div>
               <p className="text-sm font-bold text-primary">نظام إدارة عيادة الأسنان</p>
-              <h1 className="mt-1 text-2xl font-extrabold text-neutral">دخول الطبيب</h1>
+              <h1 className="mt-1 text-xl font-extrabold text-neutral sm:text-2xl">دخول الطبيب</h1>
             </div>
-            <div className="badge badge-primary badge-outline">المرحلة الأولى</div>
           </motion.div>
 
           <motion.p variants={riseItem} className="text-sm leading-7 text-base-content/70">
             أهلاً بك دكتور، أدخل بيانات الحساب للوصول إلى لوحة التحكم والبدء في إدارة العيادة.
           </motion.p>
 
-          <motion.form variants={riseItem} className="mt-2 space-y-2" onSubmit={handleSubmit}>
+          <motion.form variants={riseItem} className="mt-1 space-y-1.5 sm:mt-2 sm:space-y-2" onSubmit={handleSubmit} autoComplete="on">
             <FormField
               id="email"
               name="email"
@@ -72,6 +71,7 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               placeholder="example@domain.com"
+              autoComplete="username"
               required
             />
 
@@ -83,6 +83,7 @@ function Login() {
               value={formData.password}
               onChange={handleChange}
               placeholder="اكتب كلمة المرور"
+              autoComplete="current-password"
               required
             />
 

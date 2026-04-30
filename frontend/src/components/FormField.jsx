@@ -11,7 +11,7 @@ function FormField({ id, label, error, hint, className = '', ...props }) {
 
       <motion.input
         id={id}
-        className={`input input-bordered w-full ${hasError ? 'input-error' : ''} ${className}`}
+        className={`input input-bordered w-full text-sm sm:text-base ${hasError ? 'input-error' : ''} ${className}`}
         whileFocus={{ scale: 1.005 }}
         transition={{ duration: 0.15 }}
         {...props}

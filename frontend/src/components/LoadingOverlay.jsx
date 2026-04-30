@@ -13,7 +13,7 @@ function LoadingOverlay({ visible }) {
           transition={{ duration: 0.2 }}
         >
           <motion.div
-            className="rounded-2xl border border-base-300 bg-base-100 px-6 py-5 shadow-2xl"
+            className="mx-4 rounded-2xl border border-base-300 bg-base-100 px-4 py-4 shadow-2xl sm:px-6 sm:py-5"
             initial={{ y: 10, opacity: 0.8 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}

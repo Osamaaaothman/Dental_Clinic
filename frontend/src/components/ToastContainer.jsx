@@ -14,12 +14,12 @@ function ToastContainer() {
   const removeToast = useUiStore((state) => state.removeToast);
 
   return (
-    <div className="pointer-events-none fixed left-4 top-4 z-[70] flex w-[min(360px,calc(100vw-2rem))] flex-col gap-2">
+    <div className="pointer-events-none fixed left-3 right-3 top-3 z-[70] flex w-auto max-w-sm flex-col gap-2 sm:left-4 sm:right-auto sm:top-4 sm:w-[min(360px,calc(100vw-2rem))]">
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div
             key={toast.id}
-            className={`alert pointer-events-auto shadow-lg ${toastClass[toast.type] || 'alert-info'}`}
+            className={`alert pointer-events-auto shadow-lg text-sm ${toastClass[toast.type] || 'alert-info'}`}
             variants={toastMotion}
             initial="hidden"
             animate="visible"

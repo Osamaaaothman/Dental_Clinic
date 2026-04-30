@@ -11,9 +11,9 @@ function ClinicCard({ clinic, index, isLoading, onSelect }) {
       className="glass-card"
       whileHover="hover"
     >
-      <motion.div variants={cardHover} initial="rest" whileHover="hover" className="card-body">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="card-title text-lg font-bold text-neutral">{clinic.name}</h2>
+      <motion.div variants={cardHover} initial="rest" whileHover="hover" className="card-body p-4 sm:p-6">
+        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="card-title text-base font-bold text-neutral sm:text-lg">{clinic.name}</h2>
           <span className="badge badge-primary">عيادة {index + 1}</span>
         </div>
 
@@ -23,7 +23,7 @@ function ClinicCard({ clinic, index, isLoading, onSelect }) {
 
         <div className="card-actions justify-start">
           <AnimatedButton
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm w-full sm:w-auto"
             type="button"
             onClick={() => onSelect(clinic.id)}
             disabled={isLoading}

@@ -39,7 +39,7 @@ function SelectClinic() {
     <AnimatedPage className="page-shell">
       <div className="mx-auto w-full max-w-5xl">
         <motion.div
-          className="mb-6 flex items-center justify-between rounded-2xl border border-base-300 bg-base-100/85 px-5 py-4 shadow"
+          className="mb-5 flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/85 px-4 py-4 shadow sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:px-5"
           variants={riseItem}
           initial="initial"
           animate="animate"
@@ -47,9 +47,9 @@ function SelectClinic() {
         >
           <div>
             <p className="text-xs font-bold text-primary">الخطوة الثانية</p>
-            <h1 className="text-2xl font-extrabold text-neutral">اختيار العيادة</h1>
+            <h1 className="text-xl font-extrabold text-neutral sm:text-2xl">اختيار العيادة</h1>
           </div>
-          <span className="badge badge-secondary badge-outline">جلسة العمل</span>
+          <span className="badge badge-secondary badge-outline self-start sm:self-auto">جلسة العمل</span>
         </motion.div>
 
         <motion.p
@@ -65,7 +65,7 @@ function SelectClinic() {
         {error && <div className="alert alert-error mb-4 text-sm">{error}</div>}
 
         <motion.div
-          className="grid gap-4 sm:grid-cols-2"
+          className="grid gap-3 sm:grid-cols-2 sm:gap-4"
           variants={staggerContainer}
           initial="initial"
           animate="animate"

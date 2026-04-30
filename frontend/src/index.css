@@ -17,16 +17,17 @@
 
   body {
     @apply m-0 bg-clinic-pattern font-arabic text-base-content;
+    overflow-x: hidden;
   }
 }
 
 @layer components {
   .page-shell {
-    @apply min-h-screen p-4 sm:p-8;
+    @apply min-h-screen p-3 sm:p-6 lg:p-8;
   }
 
   .glass-card {
-    @apply card border border-base-300/60 bg-base-100/90 shadow-2xl backdrop-blur;
+    @apply card border border-base-300/60 bg-base-100/90 shadow-xl backdrop-blur sm:shadow-2xl;
   }
 
   .floating-shape {
