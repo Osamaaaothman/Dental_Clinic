@@ -1,0 +1,14 @@
+CREATE INDEX IF NOT EXISTS idx_patients_clinic ON patients(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_patient ON sessions(patient_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_clinic ON sessions(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_patient ON appointments(patient_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
+CREATE INDEX IF NOT EXISTS idx_teeth_patient ON teeth(patient_id);
+CREATE INDEX IF NOT EXISTS idx_tooth_history_tooth ON tooth_history(tooth_id);
+CREATE INDEX IF NOT EXISTS idx_attachments_patient ON attachments(patient_id);
+CREATE INDEX IF NOT EXISTS idx_attachments_session ON attachments(session_id);
+CREATE INDEX IF NOT EXISTS idx_payments_session ON payments(session_id);
+CREATE INDEX IF NOT EXISTS idx_payments_patient ON payments(patient_id);
+CREATE INDEX IF NOT EXISTS idx_payments_clinic ON payments(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(payment_date);
+CREATE INDEX IF NOT EXISTS idx_appointments_reminder ON appointments(appointment_date, status) WHERE status = 'scheduled';

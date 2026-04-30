@@ -1,14 +1,33 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "description": "Dental clinic backend API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "migrate": "node db/migrate.js",
+    "seed": "node db/seed.js"
   },
-  "keywords": [],
+  "keywords": [
+    "express",
+    "postgres",
+    "supabase",
+    "jwt"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
-  "description": ""
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
 }
