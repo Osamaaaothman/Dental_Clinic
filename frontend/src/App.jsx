@@ -7,6 +7,8 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import ToastContainer from './components/ToastContainer.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
+import PatientTeeth from './pages/PatientTeeth.jsx';
+import Patients from './pages/Patients.jsx';
 import SelectClinic from './pages/SelectClinic.jsx';
 import { useAuthStore } from './store/authStore.js';
 import { useUiStore } from './store/uiStore.js';
@@ -44,6 +46,8 @@ function App() {
 
           <Route element={<ProtectedRoute requireClinic />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/patients" element={<Patients />} />
+            <Route path="/patients/:id" element={<PatientTeeth />} />
           </Route>
         </Routes>
       </AnimatePresence>

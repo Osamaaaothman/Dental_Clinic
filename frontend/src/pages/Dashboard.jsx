@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import AnimatedButton from '../components/AnimatedButton.jsx';
 import AnimatedPage from '../components/AnimatedPage.jsx';
 import { riseItem, staggerContainer } from '../lib/animations.js';
@@ -6,6 +7,7 @@ import { useAuthStore } from '../store/authStore.js';
 import { useUiStore } from '../store/uiStore.js';
 
 function Dashboard() {
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const selectedClinic = useAuthStore((state) => state.selectedClinic);
   const logout = useAuthStore((state) => state.logout);
@@ -31,17 +33,15 @@ function Dashboard() {
         initial="initial"
         animate="animate"
       >
-        <motion.div className="rounded-2xl border border-base-300 bg-base-100/90 px-3 py-3 shadow sm:px-4" variants={riseItem}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex-1">
-              <h1 className="text-lg font-extrabold text-neutral sm:text-xl">لوحة التحكم</h1>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="badge badge-primary badge-outline">{selectedClinic?.name || 'بدون عيادة'}</div>
-              <AnimatedButton className="btn btn-error btn-outline btn-sm" type="button" onClick={handleLogoutClick}>
-                تسجيل الخروج
-              </AnimatedButton>
-            </div>
+        <motion.div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" variants={riseItem}>
+          <div className="flex-1">
+            <h1 className="text-lg font-extrabold text-neutral sm:text-xl">لوحة التحكم</h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="badge badge-primary badge-outline">{selectedClinic?.name || 'بدون عيادة'}</div>
+            <AnimatedButton className="btn btn-error btn-outline btn-sm" type="button" onClick={handleLogoutClick}>
+              تسجيل الخروج
+            </AnimatedButton>
           </div>
         </motion.div>
 
@@ -69,11 +69,11 @@ function Dashboard() {
               تم تجهيز تسجيل الدخول، حماية المسارات، واختيار العيادة بنجاح. النظام جاهز الآن
               للانتقال إلى إدارة المرضى والأسنان.
             </p>
-            <div className="card-actions justify-start sm:justify-start">
-              <AnimatedButton className="btn btn-primary btn-sm" type="button" disabled>
-                قريباً: إدارة المرضى
-              </AnimatedButton>
-            </div>
+             <div className="card-actions justify-start sm:justify-start">
+                  <AnimatedButton className="btn btn-primary btn-sm" type="button" onClick={() => navigate('/patients')}>
+                    إدارة المرضى والأسنان
+                </AnimatedButton>
+              </div>
           </div>
         </motion.div>
       </motion.div>

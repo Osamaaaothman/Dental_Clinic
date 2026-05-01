@@ -39,4 +39,50 @@ export async function logoutRequest() {
   return data;
 }
 
+export async function getPatientsRequest({ clinicId, search = '', page = 1 }) {
+  const { data } = await api.get('/patients', {
+    params: {
+      clinic_id: clinicId,
+      search: search || undefined,
+      page,
+    },
+  });
+  return data;
+}
+
+export async function getPatientRequest(id) {
+  const { data } = await api.get(`/patients/${id}`);
+  return data;
+}
+
+export async function createPatientRequest(payload) {
+  const { data } = await api.post('/patients', payload);
+  return data;
+}
+
+export async function updatePatientRequest(id, payload) {
+  const { data } = await api.put(`/patients/${id}`, payload);
+  return data;
+}
+
+export async function deletePatientRequest(id) {
+  const { data } = await api.delete(`/patients/${id}`);
+  return data;
+}
+
+export async function getPatientTeethRequest(patientId) {
+  const { data } = await api.get(`/patients/${patientId}/teeth`);
+  return data;
+}
+
+export async function updateToothStatusRequest(toothId, payload) {
+  const { data } = await api.put(`/teeth/${toothId}`, payload);
+  return data;
+}
+
+export async function getToothHistoryRequest(toothId) {
+  const { data } = await api.get(`/teeth/${toothId}/history`);
+  return data;
+}
+
 export default api;
