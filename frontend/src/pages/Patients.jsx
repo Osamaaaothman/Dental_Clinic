@@ -41,7 +41,6 @@ function Patients() {
   const navigate = useNavigate();
   const selectedClinic = useAuthStore((state) => state.selectedClinic);
   const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
 
   const pushToast = useUiStore((state) => state.pushToast);
   const openModal = useUiStore((state) => state.openModal);
@@ -142,17 +141,7 @@ function Patients() {
     dialogRef.current?.close?.();
   }
 
-  function handleLogoutClick() {
-    openModal({
-      title: 'تأكيد تسجيل الخروج',
-      description: 'هل تريد إنهاء الجلسة الحالية والعودة إلى صفحة تسجيل الدخول؟',
-      confirmText: 'تسجيل الخروج',
-      cancelText: 'إلغاء',
-      onConfirm: () => {
-        logout();
-      },
-    });
-  }
+  
 
   function handleFormChange(event) {
     const { name, value } = event.target;
@@ -217,143 +206,170 @@ function Patients() {
   }
 
   return (
-    <AnimatedPage className="page-shell">
-      <div className="mx-auto w-full max-w-6xl space-y-4">
-        <div className="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/85 px-4 py-4 shadow sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div>
-            <p className="text-xs font-bold text-primary">Phase 2</p>
-            <h1 className="text-xl font-extrabold text-neutral sm:text-2xl">المرضى</h1>
-            <p className="mt-1 text-xs text-base-content/70">{user?.email || ''}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="badge badge-primary badge-outline">{selectedClinic?.name || 'بدون عيادة'}</div>
-            <AnimatedButton className="btn btn-error btn-outline btn-sm" type="button" onClick={handleLogoutClick}>
-              تسجيل الخروج
-            </AnimatedButton>
+    <AnimatedPage>
+      <div className="space-y-5">
+        <div className="panel-card p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="field-label">ملف المرضى</p>
+              <h2 className="section-title">إدارة المرضى</h2>
+              <p className="subtle-text mt-1">{user?.email || ''}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="badge badge-outline badge-primary">{selectedClinic?.name || 'بدون عيادة'}</div>
+            </div>
           </div>
         </div>
 
-        <div className="glass-card">
-          <div className="card-body gap-3 p-4 sm:p-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex-1">
-                <label className="label" htmlFor="search">
-                  <span className="label-text font-semibold">بحث بالاسم</span>
-                </label>
-                <div className="join w-full">
-                  <input
-                    id="search"
-                    className="input input-bordered join-item w-full"
-                    value={searchDraft}
-                    onChange={(e) => setSearchDraft(e.target.value)}
-                    placeholder="اكتب اسم المريض"
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary join-item"
-                    onClick={() => {
-                      setPage(1);
-                      setSearch(searchDraft.trim());
-                    }}
-                  >
-                    بحث
-                  </button>
+        <div className="panel-card p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex-1">
+              <label className="label" htmlFor="search">
+                <span className="label-text font-semibold">بحث بالاسم</span>
+              </label>
+              <div className="join w-full">
+                <input
+                  id="search"
+                  className="input input-bordered join-item w-full"
+                  value={searchDraft}
+                  onChange={(e) => setSearchDraft(e.target.value)}
+                  placeholder="اكتب اسم المريض"
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary join-item"
+                  onClick={() => {
+                    setPage(1);
+                    setSearch(searchDraft.trim());
+                  }}
+                >
+                  بحث
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <AnimatedButton className="btn btn-primary" type="button" onClick={() => openPatientDialog(null)}>
+                إضافة مريض
+              </AnimatedButton>
+            </div>
+          </div>
+
+          {listError ? <div className="alert alert-error text-sm mt-4">{listError}</div> : null}
+
+          <div className="mt-4 hidden overflow-x-auto rounded-2xl border border-base-300 lg:block">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>الهاتف</th>
+                  <th>النوع</th>
+                  <th>التاريخ</th>
+                  <th className="text-left">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {patients.map((patient) => (
+                  <tr key={patient.id}>
+                    <td className="font-semibold">{patient.full_name}</td>
+                    <td>{patient.phone || '-'}</td>
+                    <td>{patient.gender === 'male' ? 'ذكر' : patient.gender === 'female' ? 'أنثى' : '-'}</td>
+                    <td>{patient.created_at ? String(patient.created_at).slice(0, 10) : '-'}</td>
+                    <td className="text-left">
+                      <div className="flex flex-wrap gap-2">
+                        <AnimatedButton
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => navigate(`/patients/${patient.id}`)}
+                        >
+                          الأسنان
+                        </AnimatedButton>
+                        <AnimatedButton
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => openPatientDialog(patient)}
+                        >
+                          تعديل
+                        </AnimatedButton>
+                        <AnimatedButton
+                          type="button"
+                          className="btn btn-error btn-outline btn-sm"
+                          onClick={() => handleDeletePatient(patient)}
+                        >
+                          حذف
+                        </AnimatedButton>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {patients.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>
+                      <div className="py-6 text-center text-sm text-base-content/70">لا توجد بيانات.</div>
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:hidden">
+            {patients.map((patient) => (
+              <div key={patient.id} className="stat-tile">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-base-content">{patient.full_name}</h3>
+                  <span className="text-xs text-base-content/60">{patient.created_at ? String(patient.created_at).slice(0, 10) : '-'}</span>
+                </div>
+                <div className="mt-2 space-y-1 text-sm text-base-content/70">
+                  <div>الهاتف: {patient.phone || '-'}</div>
+                  <div>النوع: {patient.gender === 'male' ? 'ذكر' : patient.gender === 'female' ? 'أنثى' : '-'}</div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <AnimatedButton type="button" className="btn btn-secondary btn-sm" onClick={() => navigate(`/patients/${patient.id}`)}>
+                    الأسنان
+                  </AnimatedButton>
+                  <AnimatedButton type="button" className="btn btn-outline btn-sm" onClick={() => openPatientDialog(patient)}>
+                    تعديل
+                  </AnimatedButton>
+                  <AnimatedButton type="button" className="btn btn-error btn-outline btn-sm" onClick={() => handleDeletePatient(patient)}>
+                    حذف
+                  </AnimatedButton>
                 </div>
               </div>
+            ))}
 
-              <div className="flex items-center gap-2">
-                <AnimatedButton className="btn btn-primary" type="button" onClick={() => openPatientDialog(null)}>
-                  إضافة مريض
-                </AnimatedButton>
-              </div>
-            </div>
+            {patients.length === 0 ? (
+              <div className="stat-tile text-center text-sm text-base-content/70">لا توجد بيانات.</div>
+            ) : null}
+          </div>
 
-            {listError ? <div className="alert alert-error text-sm">{listError}</div> : null}
-
-            <div className="overflow-x-auto rounded-2xl border border-base-300">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>الاسم</th>
-                    <th>الهاتف</th>
-                    <th>النوع</th>
-                    <th>التاريخ</th>
-                    <th className="text-left">إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {patients.map((patient) => (
-                    <tr key={patient.id}>
-                      <td className="font-semibold">{patient.full_name}</td>
-                      <td>{patient.phone || '-'}</td>
-                      <td>{patient.gender === 'male' ? 'ذكر' : patient.gender === 'female' ? 'أنثى' : '-'}</td>
-                      <td>{patient.created_at ? String(patient.created_at).slice(0, 10) : '-'}</td>
-                      <td className="text-left">
-                        <div className="flex flex-wrap gap-2">
-                          <AnimatedButton
-                            type="button"
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => navigate(`/patients/${patient.id}`)}
-                          >
-                            الأسنان
-                          </AnimatedButton>
-                          <AnimatedButton
-                            type="button"
-                            className="btn btn-outline btn-sm"
-                            onClick={() => openPatientDialog(patient)}
-                          >
-                            تعديل
-                          </AnimatedButton>
-                          <AnimatedButton
-                            type="button"
-                            className="btn btn-error btn-outline btn-sm"
-                            onClick={() => handleDeletePatient(patient)}
-                          >
-                            حذف
-                          </AnimatedButton>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {patients.length === 0 ? (
-                    <tr>
-                      <td colSpan={5}>
-                        <div className="py-6 text-center text-sm text-base-content/70">لا توجد بيانات.</div>
-                      </td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-base-content/70">الصفحة: {pageLabel}</div>
-              <div className="join">
-                <button
-                  type="button"
-                  className="btn join-item btn-sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  السابق
-                </button>
-                <button
-                  type="button"
-                  className="btn join-item btn-sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  التالي
-                </button>
-              </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+            <div className="text-sm text-base-content/70">الصفحة: {pageLabel}</div>
+            <div className="join">
+              <button
+                type="button"
+                className="btn join-item btn-sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                السابق
+              </button>
+              <button
+                type="button"
+                className="btn join-item btn-sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                التالي
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <dialog ref={dialogRef} className="modal">
-        <div className="modal-box w-11/12 max-w-2xl">
+        <div className="modal-box w-11/12 max-w-2xl border border-base-300/70 bg-base-100">
           <h3 className="text-lg font-extrabold text-neutral">
             {editingPatient ? 'تعديل بيانات المريض' : 'إضافة مريض'}
           </h3>

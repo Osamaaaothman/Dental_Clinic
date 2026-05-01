@@ -18,6 +18,10 @@ function ClinicCard({ clinic, index, isLoading, onSelect }) {
         </div>
 
         <p className="text-sm text-base-content/70">{clinic.location || 'لم يتم تحديد الموقع بعد'}</p>
+        <div className="mt-3 flex items-center gap-2 text-xs text-base-content/60">
+          <span className="badge badge-outline badge-secondary">جاهزة للعمل</span>
+          <span>فرع نشط</span>
+        </div>
 
         <div className="divider my-2" />
 
@@ -28,7 +32,7 @@ function ClinicCard({ clinic, index, isLoading, onSelect }) {
             onClick={() => onSelect(clinic.id)}
             disabled={isLoading}
           >
-            {isLoading ? 'جار الدخول...' : 'الدخول لهذه العيادة'}
+            {isLoading ? 'جار الدخول...' : 'متابعة العمل'}
           </AnimatedButton>
         </div>
       </motion.div>

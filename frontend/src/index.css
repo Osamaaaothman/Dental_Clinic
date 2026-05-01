@@ -15,19 +15,91 @@
     direction: rtl;
   }
 
+  html[data-theme='clinic-dark'] {
+    color-scheme: dark;
+  }
+
+  html[data-theme='clinic-light'] {
+    color-scheme: light;
+  }
+
   body {
-    @apply m-0 bg-clinic-pattern font-arabic text-base-content;
+    @apply m-0 font-arabic text-base-content;
     overflow-x: hidden;
+  }
+
+  html[data-theme='clinic-dark'] body {
+    background-color: #0f172a;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.18), transparent 40%),
+      radial-gradient(circle at 85% 5%, rgba(8, 145, 178, 0.18), transparent 35%),
+      linear-gradient(135deg, #0f172a 0%, #111827 45%, #0b1120 100%);
+  }
+
+  html[data-theme='clinic-light'] body {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.12), transparent 40%),
+      radial-gradient(circle at 85% 5%, rgba(14, 165, 233, 0.12), transparent 35%),
+      linear-gradient(140deg, #ffffff 0%, #f8fafc 45%, #eef2ff 100%);
   }
 }
 
 @layer components {
   .page-shell {
-    @apply min-h-screen p-3 sm:p-6 lg:p-8;
+    @apply min-h-screen p-3 sm:p-5 lg:p-8;
   }
 
   .glass-card {
-    @apply card border border-base-300/60 bg-base-100/90 shadow-xl backdrop-blur sm:shadow-2xl;
+    @apply card border border-base-300/70 bg-base-100/90 shadow-card backdrop-blur;
+  }
+
+  .shell-container {
+    @apply min-h-screen text-base-content transition-colors duration-200;
+  }
+
+  .panel-card {
+    @apply rounded-2xl border border-base-300/70 bg-base-200/85 shadow-soft backdrop-blur transition-colors;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-base-content sm:text-xl;
+  }
+
+  .subtle-text {
+    @apply text-sm text-base-content/70;
+  }
+
+  .sidebar-item {
+    @apply flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-base-content/70 transition hover:bg-base-300/60 hover:text-base-content;
+  }
+
+  .sidebar-item-active {
+    @apply bg-base-300/70 text-base-content shadow-soft ring-1 ring-primary/20;
+  }
+
+  .nav-icon {
+    @apply grid h-10 w-10 place-items-center rounded-xl bg-base-300/50 text-base-content/80 transition-colors;
+  }
+
+  .sidebar-item-active .nav-icon {
+    @apply bg-primary/15 text-primary;
+  }
+
+  .sidebar-toggle {
+    @apply grid h-9 w-9 place-items-center rounded-xl border border-base-300/70 text-sm font-semibold text-base-content/70 transition hover:bg-base-300/60 hover:text-base-content;
+  }
+
+  .stat-tile {
+    @apply rounded-2xl border border-base-300/70 bg-base-200/85 p-4 shadow-soft transition-colors;
+  }
+
+  .field-label {
+    @apply text-xs font-semibold uppercase tracking-wide text-base-content/60;
+  }
+
+  .tooth-hover {
+    @apply pointer-events-none absolute z-10 w-44 rounded-xl border border-base-300/70 bg-base-100/95 p-2 text-xs shadow-soft backdrop-blur;
   }
 
   .floating-shape {
@@ -43,5 +115,11 @@
   }
   50% {
     transform: translateY(-14px) scale(1.03);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-shell {
+    padding-top: 1.25rem;
   }
 }

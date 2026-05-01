@@ -37,35 +37,28 @@ function SelectClinic() {
 
   return (
     <AnimatedPage className="page-shell">
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto w-full max-w-5xl space-y-5">
         <motion.div
-          className="mb-5 flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/85 px-4 py-4 shadow sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          className="panel-card p-5 sm:p-6"
           variants={riseItem}
           initial="initial"
           animate="animate"
           transition={{ duration: 0.3, ease: smoothEase }}
         >
-          <div>
-            <p className="text-xs font-bold text-primary">الخطوة الثانية</p>
-            <h1 className="text-xl font-extrabold text-neutral sm:text-2xl">اختيار العيادة</h1>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="field-label">الخطوة الثانية</p>
+              <h1 className="section-title">اختيار العيادة</h1>
+              <p className="subtle-text mt-1">اختر العيادة التي تريد العمل عليها الآن.</p>
+            </div>
+            <span className="badge badge-outline badge-secondary self-start sm:self-auto">جلسة العمل</span>
           </div>
-          <span className="badge badge-secondary badge-outline self-start sm:self-auto">جلسة العمل</span>
         </motion.div>
 
-        <motion.p
-          className="mb-5 text-sm text-base-content/70"
-          variants={riseItem}
-          initial="initial"
-          animate="animate"
-          transition={{ duration: 0.3, ease: smoothEase, delay: 0.04 }}
-        >
-          اختر العيادة التي تريد العمل عليها الآن.
-        </motion.p>
-
-        {error && <div className="alert alert-error mb-4 text-sm">{error}</div>}
+        {error && <div className="alert alert-error text-sm">{error}</div>}
 
         <motion.div
-          className="grid gap-3 sm:grid-cols-2 sm:gap-4"
+          className="grid gap-3 sm:grid-cols-2"
           variants={staggerContainer}
           initial="initial"
           animate="animate"
@@ -81,8 +74,8 @@ function SelectClinic() {
           ))}
 
           {clinics.length === 0 && (
-            <div className="alert">
-              <span>لا توجد عيادات متاحة حالياً.</span>
+            <div className="panel-card p-4 text-center text-sm text-base-content/70">
+              لا توجد عيادات متاحة حالياً.
             </div>
           )}
         </motion.div>

@@ -5,6 +5,7 @@ import ConfirmModal from './components/ConfirmModal.jsx';
 import LoadingOverlay from './components/LoadingOverlay.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import ToastContainer from './components/ToastContainer.jsx';
+import AppLayout from './components/layout/AppLayout.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import PatientTeeth from './pages/PatientTeeth.jsx';
@@ -12,6 +13,7 @@ import Patients from './pages/Patients.jsx';
 import SelectClinic from './pages/SelectClinic.jsx';
 import { useAuthStore } from './store/authStore.js';
 import { useUiStore } from './store/uiStore.js';
+import { useThemeStore } from './store/themeStore.js';
 
 function App() {
   const location = useLocation();
@@ -21,6 +23,7 @@ function App() {
   const isGlobalLoading = useUiStore((state) => state.isGlobalLoading);
   const modal = useUiStore((state) => state.modal);
   const closeModal = useUiStore((state) => state.closeModal);
+  const theme = useThemeStore((state) => state.theme);
 
   useEffect(() => {
     if (token) {
@@ -28,8 +31,13 @@ function App() {
     }
   }, [token, loadMe]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+  }, [theme]);
+
   return (
-    <>
+    <div>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route
@@ -45,9 +53,11 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute requireClinic />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/patients" element={<Patients />} />
-            <Route path="/patients/:id" element={<PatientTeeth />} />
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/patients" element={<Patients />} />
+              <Route path="/patients/:id" element={<PatientTeeth />} />
+            </Route>
           </Route>
         </Routes>
       </AnimatePresence>
@@ -63,7 +73,7 @@ function App() {
         onConfirm={modal.onConfirm}
         onClose={closeModal}
       />
-    </>
+    </div>
   );
 }
 
