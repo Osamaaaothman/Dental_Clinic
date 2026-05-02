@@ -55,6 +55,7 @@ function Patients() {
   const pushToast = useUiStore((state) => state.pushToast);
   const openModal = useUiStore((state) => state.openModal);
   const setGlobalLoading = useUiStore((state) => state.setGlobalLoading);
+  const isGlobalLoading = useUiStore((state) => state.isGlobalLoading);
 
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(1);
@@ -67,6 +68,7 @@ function Patients() {
   const [editingPatient, setEditingPatient] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const clinicId = selectedClinic?.id;
 
@@ -162,6 +164,9 @@ function Patients() {
 
   async function handleSavePatient(event) {
     event.preventDefault();
+    if (isSaving) {
+      return;
+    }
     setFormError(null);
 
     const payload = normalizePatientForm(form);
@@ -170,6 +175,7 @@ function Patients() {
       return;
     }
 
+    setIsSaving(true);
     setGlobalLoading(true);
     try {
       if (editingPatient?.id) {
@@ -192,6 +198,7 @@ function Patients() {
       pushToast({ type: "error", message });
     } finally {
       setGlobalLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -372,6 +379,10 @@ function Patients() {
 
           .input::placeholder, .textarea::placeholder { color: rgba(255,255,255,0.22); }
           .input:focus, .select:focus, .textarea:focus { border-color: rgba(14,165,233,0.4); }
+          .input:disabled, .select:disabled, .textarea:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
 
           .card {
             background: var(--bg-surface);
@@ -537,7 +548,7 @@ function Patients() {
             font-size: 12px;
           }
 
-          .alert {
+          .patients-alert {
             margin-top: 12px;
             background: rgba(239,68,68,0.09);
             border: 1px solid rgba(239,68,68,0.14);
@@ -654,7 +665,7 @@ function Patients() {
             </div>
           </div>
 
-          {listError ? <div className="alert">{listError}</div> : null}
+          {listError ? <div className="patients-alert">{listError}</div> : null}
 
           <div className="patients-grid">
             {patients.map((patient) => {
@@ -771,6 +782,7 @@ function Patients() {
                 label="الاسم الكامل"
                 value={form.full_name}
                 onChange={handleFormChange}
+                disabled={isSaving || isGlobalLoading}
                 required
               />
 
@@ -786,6 +798,7 @@ function Patients() {
                     className="input"
                     value={form.birth_date}
                     onChange={handleFormChange}
+                    disabled={isSaving || isGlobalLoading}
                   />
                 </div>
 
@@ -799,6 +812,7 @@ function Patients() {
                     className="select"
                     value={form.gender}
                     onChange={handleFormChange}
+                    disabled={isSaving || isGlobalLoading}
                   >
                     <option value="">-</option>
                     <option value="male">ذكر</option>
@@ -814,6 +828,7 @@ function Patients() {
                   label="الهاتف"
                   value={form.phone}
                   onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
                 />
                 <FormField
                   id="email"
@@ -822,6 +837,7 @@ function Patients() {
                   label="البريد الإلكتروني"
                   value={form.email}
                   onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
                 />
               </div>
 
@@ -832,6 +848,7 @@ function Patients() {
                   label="فصيلة الدم"
                   value={form.blood_type}
                   onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
                 />
                 <FormField
                   id="allergies"
@@ -839,6 +856,7 @@ function Patients() {
                   label="الحساسية"
                   value={form.allergies}
                   onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
                 />
               </div>
 
@@ -853,21 +871,27 @@ function Patients() {
                   value={form.notes}
                   onChange={handleFormChange}
                   placeholder="ملاحظات إضافية"
+                  disabled={isSaving || isGlobalLoading}
                 />
               </div>
 
-              {formError ? <div className="alert">{formError}</div> : null}
+              {formError ? <div className="patients-alert">{formError}</div> : null}
 
               <div className="modal-action">
                 <button
                   type="button"
                   className="btn-ghost"
                   onClick={closePatientDialog}
+                  disabled={isSaving || isGlobalLoading}
                 >
                   إغلاق
                 </button>
-                <AnimatedButton type="submit" className="btn-primary">
-                  حفظ
+                <AnimatedButton
+                  type="submit"
+                  className="btn-primary"
+                  disabled={isSaving || isGlobalLoading}
+                >
+                  {isSaving ? "جارٍ الحفظ..." : "حفظ"}
                 </AnimatedButton>
               </div>
             </form>
