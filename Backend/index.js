@@ -21,18 +21,15 @@ const allowedOrigins = new Set(
   ].filter(Boolean)
 );
 
+// Match any Vercel preview URL belonging to your project
+const VERCEL_PREVIEW_PATTERN = /^https:\/\/dental-clinic-[a-z0-9-]+-osama1111222-gmailcoms-projects\.vercel\.app$/;
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow non-browser requests (no Origin header)
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.has(origin)) {
-        return callback(null, true);
-      }
-
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.has(origin)) return callback(null, true);
+      if (VERCEL_PREVIEW_PATTERN.test(origin)) return callback(null, true);
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,

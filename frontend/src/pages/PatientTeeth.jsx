@@ -23,39 +23,112 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_MAP = new Map(STATUS_OPTIONS.map((s) => [s.value, s]));
+function getStatus(val) { return STATUS_MAP.get(val) || STATUS_MAP.get('unknown'); }
 
-function getStatus(val) {
-  return STATUS_MAP.get(val) || STATUS_MAP.get('unknown');
-}
+/* ─── Arabic Tooth Names (FDI) ───────────────────────────────────────────── */
+// Full anatomical names in Arabic per tooth number
+const ARABIC_TOOTH_NAMES = {
+  // Upper right
+  11: 'القاطع المركزي\nالعلوي الأيمن',
+  12: 'القاطع الجانبي\nالعلوي الأيمن',
+  13: 'الناب العلوي الأيمن',
+  14: 'الضاحك الأول\nالعلوي الأيمن',
+  15: 'الضاحك الثاني\nالعلوي الأيمن',
+  16: 'الطاحن الأول\nالعلوي الأيمن',
+  17: 'الطاحن الثاني\nالعلوي الأيمن',
+  18: 'ضرس العقل\nالعلوي الأيمن',
+  // Upper left
+  21: 'القاطع المركزي\nالعلوي الأيسر',
+  22: 'القاطع الجانبي\nالعلوي الأيسر',
+  23: 'الناب العلوي الأيسر',
+  24: 'الضاحك الأول\nالعلوي الأيسر',
+  25: 'الضاحك الثاني\nالعلوي الأيسر',
+  26: 'الطاحن الأول\nالعلوي الأيسر',
+  27: 'الطاحن الثاني\nالعلوي الأيسر',
+  28: 'ضرس العقل\nالعلوي الأيسر',
+  // Lower left
+  31: 'القاطع المركزي\nالسفلي الأيسر',
+  32: 'القاطع الجانبي\nالسفلي الأيسر',
+  33: 'الناب السفلي الأيسر',
+  34: 'الضاحك الأول\nالسفلي الأيسر',
+  35: 'الضاحك الثاني\nالسفلي الأيسر',
+  36: 'الطاحن الأول\nالسفلي الأيسر',
+  37: 'الطاحن الثاني\nالسفلي الأيسر',
+  38: 'ضرس العقل\nالسفلي الأيسر',
+  // Lower right
+  41: 'القاطع المركزي\nالسفلي الأيمن',
+  42: 'القاطع الجانبي\nالسفلي الأيمن',
+  43: 'الناب السفلي الأيمن',
+  44: 'الضاحك الأول\nالسفلي الأيمن',
+  45: 'الضاحك الثاني\nالسفلي الأيمن',
+  46: 'الطاحن الأول\nالسفلي الأيمن',
+  47: 'الطاحن الثاني\nالسفلي الأيمن',
+  48: 'ضرس العقل\nالسفلي الأيمن',
+};
+
+// Short name shown in tooltip title
+const ARABIC_TOOTH_SHORT = {
+  11: 'القاطع المركزي العلوي الأيمن',
+  12: 'القاطع الجانبي العلوي الأيمن',
+  13: 'الناب العلوي الأيمن',
+  14: 'الضاحك الأول العلوي الأيمن',
+  15: 'الضاحك الثاني العلوي الأيمن',
+  16: 'الطاحن الأول العلوي الأيمن',
+  17: 'الطاحن الثاني العلوي الأيمن',
+  18: 'ضرس العقل العلوي الأيمن',
+  21: 'القاطع المركزي العلوي الأيسر',
+  22: 'القاطع الجانبي العلوي الأيسر',
+  23: 'الناب العلوي الأيسر',
+  24: 'الضاحك الأول العلوي الأيسر',
+  25: 'الضاحك الثاني العلوي الأيسر',
+  26: 'الطاحن الأول العلوي الأيسر',
+  27: 'الطاحن الثاني العلوي الأيسر',
+  28: 'ضرس العقل العلوي الأيسر',
+  31: 'القاطع المركزي السفلي الأيسر',
+  32: 'القاطع الجانبي السفلي الأيسر',
+  33: 'الناب السفلي الأيسر',
+  34: 'الضاحك الأول السفلي الأيسر',
+  35: 'الضاحك الثاني السفلي الأيسر',
+  36: 'الطاحن الأول السفلي الأيسر',
+  37: 'الطاحن الثاني السفلي الأيسر',
+  38: 'ضرس العقل السفلي الأيسر',
+  41: 'القاطع المركزي السفلي الأيمن',
+  42: 'القاطع الجانبي السفلي الأيمن',
+  43: 'الناب السفلي الأيمن',
+  44: 'الضاحك الأول السفلي الأيمن',
+  45: 'الضاحك الثاني السفلي الأيمن',
+  46: 'الطاحن الأول السفلي الأيمن',
+  47: 'الطاحن الثاني السفلي الأيمن',
+  48: 'ضرس العقل السفلي الأيمن',
+};
 
 /* ─── Tooth SVG Paths ─────────────────────────────────────────────────────── */
-// Each tooth type has a unique anatomical silhouette
-// Types: incisor, canine, premolar, molar
-
+// Improved anatomical silhouettes — viewBox 0 0 20 34
 const TOOTH_PATHS = {
-  // Central/Lateral Incisor — narrow, single root, flat crown
   incisor: {
-    crown: 'M6 2 Q10 1 14 2 Q16 3 16 7 Q16 10 10 12 Q4 10 4 7 Q4 3 6 2Z',
-    root:  'M8 12 Q10 18 10 26 Q10 28 9 28 Q8 28 8 26 Q8 20 8 12Z M12 12 Q12 20 12 26 Q12 28 11 28 Q10 28 10 26 Q10 18 12 12Z',
+    crown: 'M4 2 Q10 0.5 16 2 Q17.5 3.5 17 8 Q16.5 12 10 13.5 Q3.5 12 3 8 Q2.5 3.5 4 2Z',
+    root:  'M7.5 13 Q7 20 7 27 Q7 29 8.5 29.5 Q10 29.5 10 27 Q10 20 10 13Z M10 13 Q10 20 10 27 Q10 29 11.5 29.5 Q13 29.5 12.5 27 Q12 20 12.5 13Z',
+    shine: 'M6 4 Q9 3 13 4.5',
   },
-  // Canine — pointed cusp, single long root
   canine: {
-    crown: 'M5 2 Q10 0 15 2 Q17 4 16 8 Q14 12 10 14 Q6 12 4 8 Q3 4 5 2Z',
-    root:  'M9 14 Q10 22 9 30 Q9 32 10 32 Q11 32 11 30 Q10 22 11 14Z',
+    crown: 'M4 2.5 Q10 0.5 16 2.5 Q18 4.5 17 9 Q15 14 10 16 Q5 14 3 9 Q2 4.5 4 2.5Z',
+    root:  'M8.5 15.5 Q8 24 8 30 Q8 32 10 32 Q12 32 12 30 Q12 24 11.5 15.5Z',
+    shine: 'M6 4.5 Q9 3.5 13 5',
   },
-  // Premolar — two cusps, one or two roots
   premolar: {
-    crown: 'M4 3 Q10 1 16 3 Q18 5 17 9 Q16 13 10 14 Q4 13 3 9 Q2 5 4 3Z M8 7 Q10 5 12 7',
-    root:  'M7 14 Q7 22 6 28 Q6 30 7 30 Q8 30 8 28 Q8 22 8 14Z M13 14 Q13 22 14 28 Q14 30 13 30 Q12 30 12 28 Q12 22 12 14Z',
+    crown: 'M3.5 3 Q10 1 16.5 3 Q18 5 17.5 10 Q17 14 10 15.5 Q3 14 2.5 10 Q2 5 3.5 3Z',
+    grooves: 'M9 7 Q10 5.5 11 7 M10 5.5 L10 11',
+    root:  'M6.5 15 Q6 22 5.5 28 Q5.5 30 7 30.5 Q8.5 30.5 8.5 28 Q8.5 22 8.5 15Z M13.5 15 Q14 22 14.5 28 Q14.5 30 13 30.5 Q11.5 30.5 11.5 28 Q11.5 22 11.5 15Z',
+    shine: 'M5 5 Q8 3.5 12 5',
   },
-  // Molar — wide crown, multiple cusps, multiple roots
   molar: {
-    crown: 'M3 4 Q10 1 17 4 Q19 6 18 11 Q17 15 10 16 Q3 15 2 11 Q1 6 3 4Z M6 8 Q8 6 10 8 Q12 6 14 8',
-    root:  'M5 16 Q4 22 4 28 Q4 30 5.5 30 Q7 30 7 28 Q7 22 7 16Z M10 16 Q10 22 10 28 Q10 30 10 30 Q10 30 10 28 Q10 22 10 16Z M15 16 Q16 22 16 28 Q16 30 14.5 30 Q13 30 13 28 Q13 22 13 16Z',
+    crown: 'M2.5 3.5 Q10 1 17.5 3.5 Q19.5 6 19 11.5 Q18 16 10 17.5 Q2 16 1 11.5 Q0.5 6 2.5 3.5Z',
+    grooves: 'M8 8.5 Q10 6.5 12 8.5 M6.5 11 Q8.5 9.5 10 11 Q11.5 9.5 13.5 11 M10 6.5 L10 13',
+    root:  'M4.5 17 Q4 22 3.5 27.5 Q3.5 30 5.5 30 Q7.5 30 7.5 27.5 Q7.5 22 7 17Z M10 17 Q10 23 10 28 Q10 30 10 30 Q10 30 10 28 Q10 23 10 17Z M15.5 17 Q16 22 16.5 27.5 Q16.5 30 14.5 30 Q12.5 30 12.5 27.5 Q12.5 22 13 17Z',
+    shine: 'M4 6 Q7 4 12 5.5',
   },
 };
 
-// Map tooth number to type
 function toothType(num) {
   const n = num % 10 || 10;
   if (n === 1 || n === 2) return 'incisor';
@@ -65,14 +138,14 @@ function toothType(num) {
 }
 
 /* ─── Single Tooth Component ─────────────────────────────────────────────── */
-function ToothSVG({ toothNum, status, isUpper, isSelected, onClick, onHover, onLeave }) {
+function ToothSVG({ toothNum, status, isUpper, isSelected, isHovered, onClick, onHover, onLeave }) {
   const s = getStatus(status);
   const type = toothType(toothNum);
   const paths = TOOTH_PATHS[type];
   const isMissing = status === 'missing';
 
-  // Flip lower teeth vertically
-  const flip = isUpper ? '' : 'scale(1,-1) translate(0,-32)';
+  const flipY = isUpper ? 1 : -1;
+  const flipTranslate = isUpper ? 0 : -34;
 
   return (
     <g
@@ -82,58 +155,59 @@ function ToothSVG({ toothNum, status, isUpper, isSelected, onClick, onHover, onL
       style={{ cursor: 'pointer' }}
       role="button"
       tabIndex={0}
+      className="tooth-group"
     >
-      {/* Selection ring */}
-      {isSelected && (
+      {/* Hover / selected glow ring */}
+      {(isSelected || isHovered) && !isMissing && (
         <ellipse
-          cx="10" cy="16" rx="11" ry="17"
-          fill="none"
+          cx="10" cy="17" rx="11.5" ry="18"
+          fill={isSelected ? s.color + '15' : 'transparent'}
           stroke={s.color}
-          strokeWidth="1.5"
-          strokeDasharray="3 2"
-          opacity="0.8"
+          strokeWidth={isSelected ? 1.5 : 1}
+          strokeDasharray={isSelected ? '3 2' : 'none'}
+          opacity={isSelected ? 0.9 : 0.5}
         />
       )}
 
-      <g transform={flip}>
+      <g transform={`scale(1,${flipY}) translate(0,${flipTranslate})`}>
         {isMissing ? (
-          /* Missing tooth — X mark */
           <>
-            <ellipse cx="10" cy="10" rx="8" ry="8" fill="rgba(55,65,81,0.2)" stroke="#374151" strokeWidth="1" strokeDasharray="2 2" />
-            <line x1="6" y1="6" x2="14" y2="14" stroke="#4b5563" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="14" y1="6" x2="6" y2="14" stroke="#4b5563" strokeWidth="1.5" strokeLinecap="round" />
+            <ellipse cx="10" cy="11" rx="8.5" ry="9" fill="rgba(55,65,81,0.15)" stroke="#374151" strokeWidth="1" strokeDasharray="2.5 2" />
+            <line x1="6" y1="7" x2="14" y2="15" stroke="#4b5563" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="14" y1="7" x2="6" y2="15" stroke="#4b5563" strokeWidth="1.5" strokeLinecap="round" />
           </>
         ) : (
           <>
-            {/* Root */}
-            <path
-              d={paths.root}
-              fill={`${s.color}28`}
-              stroke={`${s.color}60`}
-              strokeWidth="0.8"
-              strokeLinecap="round"
-            />
-            {/* Crown body */}
+            {/* Root shadow */}
+            <path d={paths.root} fill={`${s.color}20`} stroke={`${s.color}45`} strokeWidth="0.7" strokeLinecap="round" />
+            {/* Crown fill with gradient simulation */}
             <path
               d={paths.crown}
-              fill={isSelected ? s.color : `${s.color}cc`}
+              fill={isSelected ? s.color : `${s.color}dd`}
               stroke={s.color}
-              strokeWidth={isSelected ? 1.5 : 1}
+              strokeWidth={isSelected ? 1.5 : 0.9}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Shine */}
-            {!isMissing && (
+            {/* Anatomical grooves (premolar/molar only) */}
+            {paths.grooves && (
               <path
-                d={type === 'molar'
-                  ? 'M5 5 Q8 4 11 5'
-                  : 'M6 4 Q9 3 12 4'}
+                d={paths.grooves}
                 fill="none"
-                stroke="rgba(255,255,255,0.35)"
-                strokeWidth="1.2"
+                stroke={isSelected ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.25)'}
+                strokeWidth="0.8"
                 strokeLinecap="round"
+                strokeLinejoin="round"
               />
             )}
+            {/* Shine highlight */}
+            <path
+              d={paths.shine}
+              fill="none"
+              stroke="rgba(255,255,255,0.40)"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+            />
           </>
         )}
       </g>
@@ -168,7 +242,6 @@ function PatientTeeth() {
     return map;
   }, [teeth]);
 
-  // Stats
   const stats = useMemo(() => {
     const counts = {};
     for (const s of STATUS_OPTIONS) counts[s.value] = 0;
@@ -225,69 +298,78 @@ function PatientTeeth() {
     }
   }
 
-  // Tooth layout: FDI notation rows
+  // FDI layout
   const upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
   const upperLeft  = [21, 22, 23, 24, 25, 26, 27, 28];
   const lowerLeft  = [31, 32, 33, 34, 35, 36, 37, 38];
   const lowerRight = [48, 47, 46, 45, 44, 43, 42, 41];
 
-  const CELL_W = 38;
-  const CELL_H = 52;
+  // Increased cell size for more breathing room
+  const CELL_W = 44;
+  const CELL_H = 58;
   const TOOTH_W = 20;
-  const TOOTH_H = 32;
 
-  function renderRow(nums, isUpper, yOffset) {
+  function renderRow(nums, isUpper) {
     return nums.map((num, idx) => {
       const tooth = teethByNumber.get(num);
       const cx = idx * CELL_W + CELL_W / 2;
-      const cy = yOffset;
       const isSelected = selectedTooth?.tooth_number === num;
+      const isHov = hoveredTooth?.tooth_number === num;
       const s = getStatus(tooth?.status);
 
       return (
-        <g key={num} transform={`translate(${cx - TOOTH_W / 2}, ${cy})`}>
-          {/* Number label */}
-          <text
-            x={TOOTH_W / 2}
-            y={isUpper ? CELL_H + 12 : -6}
-            textAnchor="middle"
-            fill={isSelected ? s.color : 'rgba(255,255,255,0.3)'}
-            fontSize="9"
-            fontFamily="Cairo, sans-serif"
-            fontWeight={isSelected ? '700' : '400'}
-          >
-            {num}
-          </text>
-
+        <g key={num} transform={`translate(${cx - TOOTH_W / 2}, 0)`}>
           <ToothSVG
             toothNum={num}
             status={tooth?.status || 'unknown'}
             isUpper={isUpper}
             isSelected={isSelected}
+            isHovered={isHov}
             onClick={() => tooth && openModal(tooth)}
             onHover={(e) => {
               if (!tooth || !chartRef.current) return;
               const r = chartRef.current.getBoundingClientRect();
               setHoverPos({
-                x: Math.min(e.clientX - r.left + 14, r.width - 190),
-                y: Math.min(e.clientY - r.top + 14, r.height - 100),
+                x: Math.min(e.clientX - r.left + 16, r.width - 210),
+                y: Math.max(e.clientY - r.top - 10, 8),
               });
               setHoveredTooth(tooth);
             }}
             onLeave={() => setHoveredTooth(null)}
           />
+          {/* Tooth number badge */}
+          <text
+            x={TOOTH_W / 2}
+            y={isUpper ? CELL_H - 6 : -6}
+            textAnchor="middle"
+            fill={isSelected ? s.color : isHov ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.22)'}
+            fontSize="8"
+            fontFamily="Cairo, sans-serif"
+            fontWeight={isSelected ? '700' : '500'}
+          >
+            {num}
+          </text>
         </g>
       );
     });
   }
 
-  const chartW = 8 * CELL_W;
-  const fullW = chartW * 2 + 24; // two arches + gap
+  const quadW = 8 * CELL_W;
+  const GAP = 20;
+  const fullW = quadW * 2 + GAP;
+
+  // Heights for upper/lower section
+  const UPPER_H = CELL_H;
+  const MID_H   = 48;
+  const LOWER_H = CELL_H;
+  const totalH  = UPPER_H + MID_H + LOWER_H;
 
   return (
     <AnimatedPage>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
+
+        * { box-sizing: border-box; }
 
         .pt-root {
           font-family: 'Cairo', sans-serif;
@@ -299,7 +381,6 @@ function PatientTeeth() {
             linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
           background-size: 36px 36px;
           padding: 20px 20px 40px;
-          box-sizing: border-box;
         }
 
         .pt-card {
@@ -310,7 +391,6 @@ function PatientTeeth() {
           position: relative;
           overflow: hidden;
         }
-
         .pt-card::after {
           content: '';
           position: absolute;
@@ -320,63 +400,35 @@ function PatientTeeth() {
           pointer-events: none;
         }
 
-        .pt-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #f1f5f9;
-        }
-
-        .pt-sub {
-          font-size: 13px;
-          color: rgba(255,255,255,0.4);
-          margin-top: 2px;
-        }
+        .pt-title { font-size: 18px; font-weight: 700; color: #f1f5f9; }
+        .pt-sub   { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
 
         .pt-btn-ghost {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(255,255,255,0.04);
-          color: rgba(255,255,255,0.55);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 10px;
-          padding: 7px 14px;
-          font-size: 13px;
-          font-weight: 500;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          transition: all 0.2s;
+          display: inline-flex; align-items: center; gap: 6px;
+          background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.55);
+          border: 1px solid rgba(255,255,255,0.09); border-radius: 10px;
+          padding: 7px 14px; font-size: 13px; font-weight: 500;
+          font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
         }
-        .pt-btn-ghost:hover {
-          background: rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.9);
-        }
+        .pt-btn-ghost:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
 
         .pt-btn-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: linear-gradient(135deg, #0ea5e9, #6366f1);
-          color: white;
-          border: none;
-          border-radius: 10px;
-          padding: 8px 18px;
-          font-size: 13px;
-          font-weight: 600;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          transition: opacity 0.2s, transform 0.15s;
+          display: inline-flex; align-items: center; gap: 6px;
+          background: linear-gradient(135deg, #0ea5e9, #6366f1); color: white;
+          border: none; border-radius: 10px; padding: 8px 18px;
+          font-size: 13px; font-weight: 600; font-family: 'Cairo', sans-serif;
+          cursor: pointer; transition: opacity 0.2s, transform 0.15s;
           box-shadow: 0 0 16px rgba(14,165,233,0.2);
         }
         .pt-btn-primary:hover { opacity: 0.88; }
         .pt-btn-primary:active { transform: scale(0.97); }
 
-        /* Arch chart container */
+        /* Arch chart */
         .pt-arch-wrap {
-          background: #0c0e14;
+          background: #0a0c12;
           border: 1px solid rgba(255,255,255,0.06);
           border-radius: 14px;
-          padding: 16px;
+          padding: 16px 12px 12px;
           margin-top: 16px;
           position: relative;
           overflow: hidden;
@@ -386,250 +438,151 @@ function PatientTeeth() {
         .pt-tooltip {
           position: absolute;
           background: #1a1d28;
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 10px;
-          padding: 10px 14px;
-          pointer-events: none;
-          z-index: 10;
-          min-width: 160px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
-
-        .pt-tooltip-num {
-          font-size: 12px;
-          font-weight: 700;
-          color: #f1f5f9;
-          margin-bottom: 4px;
-        }
-
-        .pt-tooltip-status {
-          font-size: 12px;
-          color: rgba(255,255,255,0.55);
-        }
-
-        .pt-tooltip-notes {
-          font-size: 11px;
-          color: rgba(255,255,255,0.35);
-          margin-top: 4px;
-          line-height: 1.5;
-        }
-
-        /* Legend pills */
-        .pt-legend {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 16px;
-        }
-
-        .pt-legend-item {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 8px;
-          padding: 4px 10px;
-          font-size: 11px;
-          color: rgba(255,255,255,0.55);
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-        .pt-legend-item:hover {
-          background: rgba(255,255,255,0.08);
-          color: rgba(255,255,255,0.85);
-        }
-
-        .pt-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-
-        /* Stats row */
-        .pt-stats {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 10px;
-          margin-bottom: 16px;
-        }
-
-        .pt-stat {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.12);
           border-radius: 12px;
-          padding: 12px 14px;
-          text-align: center;
+          padding: 12px 16px;
+          pointer-events: none;
+          z-index: 20;
+          min-width: 180px;
+          max-width: 220px;
+          box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+          transition: opacity 0.1s;
+        }
+        .pt-tooltip-num {
+          font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35);
+          margin-bottom: 3px; letter-spacing: 0.06em;
+        }
+        .pt-tooltip-name {
+          font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; line-height: 1.4;
+        }
+        .pt-tooltip-status { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+        .pt-tooltip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .pt-tooltip-notes {
+          font-size: 11px; color: rgba(255,255,255,0.35);
+          margin-top: 6px; line-height: 1.55;
+          border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;
         }
 
-        .pt-stat-val {
-          font-size: 22px;
-          font-weight: 800;
-          color: #f1f5f9;
-          line-height: 1;
+        /* Legend */
+        .pt-legend {
+          display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px;
         }
-
-        .pt-stat-lbl {
-          font-size: 11px;
-          color: rgba(255,255,255,0.35);
-          margin-top: 4px;
+        .pt-legend-item {
+          display: inline-flex; align-items: center; gap: 6px;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 8px; padding: 4px 10px; font-size: 11px;
+          color: rgba(255,255,255,0.50); cursor: pointer; transition: all 0.15s;
         }
+        .pt-legend-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+        .pt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-        /* Patient info card */
+        /* Stats */
+        .pt-stats {
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;
+        }
+        .pt-stat {
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 12px; padding: 12px 10px; text-align: center;
+          transition: border-color 0.2s;
+        }
+        .pt-stat:hover { border-color: rgba(255,255,255,0.12); }
+        .pt-stat-val { font-size: 22px; font-weight: 800; color: #f1f5f9; line-height: 1; }
+        .pt-stat-lbl { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+        /* Patient info */
         .pt-info-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px 0;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          font-size: 13px;
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;
         }
         .pt-info-row:last-child { border-bottom: none; }
         .pt-info-lbl { color: rgba(255,255,255,0.35); }
         .pt-info-val { color: #f1f5f9; font-weight: 500; }
 
-        /* Modal overlay */
+        /* Modal */
         .pt-modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.65);
-          backdrop-filter: blur(4px);
-          z-index: 50;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
+          position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+          backdrop-filter: blur(4px); z-index: 50;
+          display: flex; align-items: center; justify-content: center; padding: 20px;
         }
-
         .pt-modal {
-          background: #13161f;
-          border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 18px;
-          padding: 28px;
-          width: 100%;
-          max-width: 420px;
-          position: relative;
-          box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+          background: #13161f; border: 1px solid rgba(255,255,255,0.09);
+          border-radius: 18px; padding: 28px; width: 100%; max-width: 440px;
+          position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.6);
         }
-
-        .pt-modal-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #f1f5f9;
-          margin-bottom: 20px;
-        }
+        .pt-modal-title { font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+        .pt-modal-subtitle { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 20px; line-height: 1.4; }
 
         .pt-field-label {
-          font-size: 12px;
-          font-weight: 500;
-          color: rgba(255,255,255,0.4);
-          margin-bottom: 8px;
-          display: block;
+          font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.4);
+          margin-bottom: 8px; display: block;
         }
-
-        /* Status option buttons */
         .pt-status-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-          margin-bottom: 16px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 16px;
         }
-
         .pt-status-opt {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 10px;
-          padding: 9px 12px;
-          cursor: pointer;
-          transition: all 0.15s;
-          font-size: 13px;
-          font-family: 'Cairo', sans-serif;
-          color: rgba(255,255,255,0.55);
-          text-align: right;
+          display: flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 10px; padding: 9px 12px; cursor: pointer; transition: all 0.15s;
+          font-size: 13px; font-family: 'Cairo', sans-serif;
+          color: rgba(255,255,255,0.55); text-align: right;
         }
-        .pt-status-opt:hover {
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.85);
-        }
-        .pt-status-opt.selected {
-          border-width: 1.5px;
-          color: white;
-          font-weight: 600;
-        }
+        .pt-status-opt:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+        .pt-status-opt.selected { border-width: 1.5px; color: white; font-weight: 600; }
 
         .pt-textarea {
-          background: #1a1d28;
-          border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 10px;
-          padding: 10px 14px;
-          color: #f1f5f9;
-          font-size: 13px;
-          font-family: 'Cairo', sans-serif;
-          direction: rtl;
-          width: 100%;
-          min-height: 80px;
-          resize: vertical;
-          box-sizing: border-box;
-          outline: none;
+          background: #1a1d28; border: 1px solid rgba(255,255,255,0.09);
+          border-radius: 10px; padding: 10px 14px; color: #f1f5f9;
+          font-size: 13px; font-family: 'Cairo', sans-serif; direction: rtl;
+          width: 100%; min-height: 80px; resize: vertical; outline: none;
           transition: border-color 0.2s;
         }
         .pt-textarea::placeholder { color: rgba(255,255,255,0.22); }
         .pt-textarea:focus { border-color: rgba(14,165,233,0.4); }
+        .pt-modal-actions { display: flex; gap: 10px; justify-content: flex-start; margin-top: 20px; }
 
-        .pt-modal-actions {
-          display: flex;
-          gap: 10px;
-          justify-content: flex-start;
-          margin-top: 20px;
-        }
-
-        /* Grid layout */
-        .pt-grid {
-          display: grid;
-          grid-template-columns: 1fr 280px;
-          gap: 16px;
-          align-items: start;
-        }
-
+        /* Grid */
+        .pt-grid { display: grid; grid-template-columns: 1fr 280px; gap: 16px; align-items: start; }
         @media (max-width: 900px) {
           .pt-grid { grid-template-columns: 1fr; }
           .pt-stats { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* Section divider label */
         .pt-arch-label {
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.12em;
-          color: rgba(255,255,255,0.2);
-          text-transform: uppercase;
+          font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+          color: rgba(255,255,255,0.18); text-transform: uppercase;
         }
-
-        /* Page header bar */
         .pt-header-bar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 20px;
-          flex-wrap: wrap;
-          gap: 12px;
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+        }
+        .pt-badge {
+          display: inline-flex; align-items: center; padding: 4px 12px;
+          border-radius: 8px; font-size: 11px; font-weight: 600;
+          font-family: 'Cairo', sans-serif;
+          background: rgba(14,165,233,0.1); color: #38bdf8;
+          border: 1px solid rgba(14,165,233,0.2);
         }
 
-        .pt-badge {
-          display: inline-flex;
-          align-items: center;
-          padding: 4px 12px;
-          border-radius: 8px;
-          font-size: 11px;
-          font-weight: 600;
-          font-family: 'Cairo', sans-serif;
-          background: rgba(14,165,233,0.1);
-          color: #38bdf8;
-          border: 1px solid rgba(14,165,233,0.2);
+        /* Tooth hover transition */
+        .tooth-group { transition: transform 0.12s; }
+        .tooth-group:hover { transform: translateY(-1px); }
+
+        /* Arch section dividers */
+        .pt-arch-section-label {
+          font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.2); text-transform: uppercase; text-align: center;
+        }
+
+        /* Quadrant label pills */
+        .pt-quad-pill {
+          font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.15); text-transform: uppercase;
+        }
+
+        /* Selected tooth side card */
+        .pt-selected-card {
+          border-radius: 14px; padding: 16px;
+          background: #13161f; border: 1px solid rgba(255,255,255,0.07);
         }
       `}</style>
 
@@ -679,7 +632,7 @@ function PatientTeeth() {
                 <div className="pt-stat-lbl">تسوس</div>
               </div>
               <div className="pt-stat">
-                <div className="pt-stat-val" style={{ color: '#a855f7' }}>{stats.crown || 0}</div>
+                <div className="pt-stat-val" style={{ color: '#a855f7' }}>{(stats.crown || 0) + (stats.treated || 0)}</div>
                 <div className="pt-stat-lbl">تاج/حشوة</div>
               </div>
               <div className="pt-stat">
@@ -690,13 +643,16 @@ function PatientTeeth() {
 
             {/* Arch chart */}
             <div className="pt-arch-wrap" ref={chartRef}>
-
               {/* Hover tooltip */}
               {hoveredTooth && (
                 <div className="pt-tooltip" style={{ left: hoverPos.x, top: hoverPos.y }}>
                   <div className="pt-tooltip-num">السن {hoveredTooth.tooth_number}</div>
-                  <div className="pt-tooltip-status" style={{ color: getStatus(hoveredTooth.status).color }}>
-                    ● {getStatus(hoveredTooth.status).label}
+                  <div className="pt-tooltip-name">{ARABIC_TOOTH_SHORT[hoveredTooth.tooth_number]}</div>
+                  <div className="pt-tooltip-status">
+                    <span className="pt-tooltip-dot" style={{ background: getStatus(hoveredTooth.status).color }} />
+                    <span style={{ color: getStatus(hoveredTooth.status).color, fontSize: 12 }}>
+                      {getStatus(hoveredTooth.status).label}
+                    </span>
                   </div>
                   {hoveredTooth.notes && (
                     <div className="pt-tooltip-notes">{hoveredTooth.notes}</div>
@@ -704,74 +660,92 @@ function PatientTeeth() {
                 </div>
               )}
 
-              {/* Labels */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span className="pt-arch-label">الفك العلوي</span>
-                <span className="pt-arch-label">اضغط على سن للتعديل</span>
+              {/* Labels row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span className="pt-arch-label">الفك العلوي ↑</span>
+                <span className="pt-arch-label" style={{ color: 'rgba(255,255,255,0.12)' }}>اضغط على سن للتعديل</span>
+                <span className="pt-arch-label">الفك العلوي ↑</span>
               </div>
 
-              {/* SVG Arch */}
+              {/* Main SVG Chart */}
               <svg
-                viewBox={`0 0 ${fullW} ${CELL_H * 2 + 60}`}
+                viewBox={`0 0 ${fullW} ${totalH + 20}`}
                 style={{ width: '100%', height: 'auto', overflow: 'visible' }}
               >
-                {/* Arch background shapes */}
+                {/* Upper arch background */}
                 <path
-                  d={`M12 10 Q${fullW/2} -10 ${fullW - 12} 10 L${fullW - 12} ${CELL_H + 14} Q${fullW/2} ${CELL_H + 30} 12 ${CELL_H + 14} Z`}
-                  fill="rgba(255,255,255,0.018)"
+                  d={`M8 ${UPPER_H - 4} Q${fullW/2} ${-8} ${fullW-8} ${UPPER_H - 4}`}
+                  fill="none"
                   stroke="rgba(255,255,255,0.05)"
-                  strokeWidth="1"
+                  strokeWidth="1.5"
                 />
+                {/* Lower arch background */}
                 <path
-                  d={`M12 ${CELL_H + 46} Q${fullW/2} ${CELL_H + 30} ${fullW-12} ${CELL_H + 46} L${fullW-12} ${CELL_H*2 + 50} Q${fullW/2} ${CELL_H*2+66} 12 ${CELL_H*2+50} Z`}
-                  fill="rgba(255,255,255,0.018)"
+                  d={`M8 ${UPPER_H + MID_H + 4} Q${fullW/2} ${totalH + 28} ${fullW-8} ${UPPER_H + MID_H + 4}`}
+                  fill="none"
                   stroke="rgba(255,255,255,0.05)"
-                  strokeWidth="1"
+                  strokeWidth="1.5"
                 />
 
-                {/* Center line */}
+                {/* Center vertical divider */}
                 <line
                   x1={fullW / 2} y1="0"
-                  x2={fullW / 2} y2={CELL_H * 2 + 60}
-                  stroke="rgba(255,255,255,0.08)"
+                  x2={fullW / 2} y2={totalH + 20}
+                  stroke="rgba(255,255,255,0.07)"
                   strokeWidth="1"
                   strokeDasharray="4 4"
                 />
 
-                {/* Upper arch — right quadrant */}
-                <g transform="translate(0, 10)">
-                  {renderRow(upperRight, true, 4)}
-                </g>
+                {/* Horizontal arch divider */}
+                <line
+                  x1="8" y1={UPPER_H + MID_H / 2}
+                  x2={fullW - 8} y2={UPPER_H + MID_H / 2}
+                  stroke="rgba(255,255,255,0.05)"
+                  strokeWidth="1"
+                  strokeDasharray="3 5"
+                />
 
-                {/* Upper arch — left quadrant */}
-                <g transform={`translate(${chartW + 24}, 10)`}>
-                  {renderRow(upperLeft, true, 4)}
-                </g>
-
-                {/* Midline label */}
-                <text x={fullW/2} y={CELL_H + 38} textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="9" fontFamily="Cairo, sans-serif">
+                {/* Midline text */}
+                <text
+                  x={fullW / 2} y={UPPER_H + MID_H / 2 + 5}
+                  textAnchor="middle"
+                  fill="rgba(255,255,255,0.1)"
+                  fontSize="9"
+                  fontFamily="Cairo, sans-serif"
+                >
                   خط الوسط
                 </text>
 
-                {/* Lower arch — left quadrant */}
-                <g transform={`translate(0, ${CELL_H + 50})`}>
-                  {renderRow(lowerRight, false, 4)}
-                </g>
-
-                {/* Lower arch — right quadrant */}
-                <g transform={`translate(${chartW + 24}, ${CELL_H + 50})`}>
-                  {renderRow(lowerLeft, false, 4)}
-                </g>
-
                 {/* Quadrant labels */}
-                <text x="6" y="8" fill="rgba(255,255,255,0.2)" fontSize="8" fontFamily="Cairo, sans-serif">UR</text>
-                <text x={fullW - 6} y="8" textAnchor="end" fill="rgba(255,255,255,0.2)" fontSize="8" fontFamily="Cairo, sans-serif">UL</text>
-                <text x="6" y={CELL_H * 2 + 58} fill="rgba(255,255,255,0.2)" fontSize="8" fontFamily="Cairo, sans-serif">LR</text>
-                <text x={fullW - 6} y={CELL_H * 2 + 58} textAnchor="end" fill="rgba(255,255,255,0.2)" fontSize="8" fontFamily="Cairo, sans-serif">LL</text>
+                <text x="6" y="12" fill="rgba(255,255,255,0.18)" fontSize="8" fontFamily="Cairo, sans-serif" fontWeight="700">UR</text>
+                <text x={fullW - 6} y="12" textAnchor="end" fill="rgba(255,255,255,0.18)" fontSize="8" fontFamily="Cairo, sans-serif" fontWeight="700">UL</text>
+                <text x="6" y={totalH + 18} fill="rgba(255,255,255,0.18)" fontSize="8" fontFamily="Cairo, sans-serif" fontWeight="700">LR</text>
+                <text x={fullW - 6} y={totalH + 18} textAnchor="end" fill="rgba(255,255,255,0.18)" fontSize="8" fontFamily="Cairo, sans-serif" fontWeight="700">LL</text>
+
+                {/* ─ Upper Right (Q1: 11–18) ─ */}
+                <g transform="translate(0, 8)">
+                  {renderRow(upperRight, true)}
+                </g>
+
+                {/* ─ Upper Left (Q2: 21–28) ─ */}
+                <g transform={`translate(${quadW + GAP}, 8)`}>
+                  {renderRow(upperLeft, true)}
+                </g>
+
+                {/* ─ Lower Right (Q4: 41–48) ─ */}
+                <g transform={`translate(0, ${UPPER_H + MID_H})`}>
+                  {renderRow(lowerRight, false)}
+                </g>
+
+                {/* ─ Lower Left (Q3: 31–38) ─ */}
+                <g transform={`translate(${quadW + GAP}, ${UPPER_H + MID_H})`}>
+                  {renderRow(lowerLeft, false)}
+                </g>
               </svg>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <span className="pt-arch-label">الفك السفلي</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                <span className="pt-arch-label">↓ الفك السفلي</span>
+                <span className="pt-arch-label">↓ الفك السفلي</span>
               </div>
             </div>
 
@@ -791,18 +765,16 @@ function PatientTeeth() {
             </div>
           </div>
 
-          {/* ── Right: Patient Info ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* ── Right: Patient Info + selected ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="pt-card">
-              {/* Avatar */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: '50%',
                   background: 'rgba(14,165,233,0.12)',
                   border: '1px solid rgba(14,165,233,0.25)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#38bdf8', fontSize: 16, fontWeight: 700,
-                  flexShrink: 0,
+                  color: '#38bdf8', fontSize: 16, fontWeight: 700, flexShrink: 0,
                 }}>
                   {patient?.full_name?.charAt(0) || '؟'}
                 </div>
@@ -813,7 +785,6 @@ function PatientTeeth() {
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>بيانات المريض</div>
                 </div>
               </div>
-
               <div className="pt-info-row">
                 <span className="pt-info-lbl">الهاتف</span>
                 <span className="pt-info-val">{patient?.phone || '—'}</span>
@@ -822,61 +793,73 @@ function PatientTeeth() {
                 <span className="pt-info-lbl">البريد</span>
                 <span className="pt-info-val" style={{ fontSize: 12 }}>{patient?.email || '—'}</span>
               </div>
-
-              <button
-                className="pt-btn-ghost"
-                onClick={() => navigate('/patients')}
-                style={{ width: '100%', justifyContent: 'center', marginTop: 14 }}
-              >
+              <button className="pt-btn-ghost" onClick={() => navigate('/patients')} style={{ width: '100%', justifyContent: 'center', marginTop: 14 }}>
                 قائمة المرضى
               </button>
             </div>
 
-            {/* Selected tooth preview */}
-            {selectedTooth && (
-              <div className="pt-card" style={{ borderColor: getStatus(selectedTooth.status).color + '40' }}>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>السن المحدد</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            {/* Selected tooth info card */}
+            {selectedTooth ? (
+              <div className="pt-selected-card" style={{ borderColor: getStatus(selectedTooth.status).color + '35' }}>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 10, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>
+                  السن المحدد
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
                   <div style={{
-                    width: 36, height: 36, borderRadius: 10,
-                    background: getStatus(selectedTooth.status).color + '20',
-                    border: `1px solid ${getStatus(selectedTooth.status).color}50`,
+                    width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                    background: getStatus(selectedTooth.status).color + '18',
+                    border: `1px solid ${getStatus(selectedTooth.status).color}45`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: getStatus(selectedTooth.status).color,
-                    fontSize: 14, fontWeight: 800,
+                    color: getStatus(selectedTooth.status).color, fontSize: 13, fontWeight: 800,
                   }}>
                     {selectedTooth.tooth_number}
                   </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: getStatus(selectedTooth.status).color }}>
-                      {getStatus(selectedTooth.status).label}
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.4, marginBottom: 4 }}>
+                      {ARABIC_TOOTH_SHORT[selectedTooth.tooth_number]}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: getStatus(selectedTooth.status).color, display: 'inline-block' }} />
+                      <span style={{ fontSize: 12, color: getStatus(selectedTooth.status).color, fontWeight: 600 }}>
+                        {getStatus(selectedTooth.status).label}
+                      </span>
                     </div>
                     {selectedTooth.notes && (
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 6, lineHeight: 1.5, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 6 }}>
                         {selectedTooth.notes}
                       </div>
                     )}
                   </div>
                 </div>
-                <button
-                  className="pt-btn-primary"
-                  onClick={() => openModal(selectedTooth)}
-                  style={{ width: '100%', justifyContent: 'center', fontSize: 12 }}
-                >
+                <button className="pt-btn-primary" onClick={() => openModal(selectedTooth)} style={{ width: '100%', justifyContent: 'center', fontSize: 12 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
                   تعديل الحالة
                 </button>
+              </div>
+            ) : (
+              <div className="pt-selected-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
+                <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.3 }}>🦷</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', lineHeight: 1.6 }}>
+                  اضغط على أي سن في الخريطة لعرض تفاصيله وتعديل حالته
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* ── Modal ── */}
+      {/* ── Update Modal ── */}
       {modalOpen && (
         <div className="pt-modal-overlay" onClick={(e) => e.target === e.currentTarget && closeModal()}>
           <div className="pt-modal">
             <div className="pt-modal-title">
               تحديث السن {selectedTooth?.tooth_number}
+            </div>
+            <div className="pt-modal-subtitle">
+              {ARABIC_TOOTH_SHORT[selectedTooth?.tooth_number]}
             </div>
 
             <form onSubmit={handleUpdate}>
@@ -909,7 +892,12 @@ function PatientTeeth() {
               />
 
               <div className="pt-modal-actions">
-                <button type="submit" className="pt-btn-primary">حفظ</button>
+                <button type="submit" className="pt-btn-primary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  حفظ
+                </button>
                 <button type="button" className="pt-btn-ghost" onClick={closeModal}>إلغاء</button>
               </div>
             </form>
