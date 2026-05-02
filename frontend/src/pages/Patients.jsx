@@ -586,95 +586,14 @@ function Patients() {
             border: 1px solid var(--border-default);
             border-radius: 16px;
             padding: 24px;
-            width: min(92vw, 640px);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.55);
-            position: relative;
-            overflow: hidden;
-          }
-
-          .patients-modal-panel::after {
-            content: '';
-            position: absolute;
-            top: -70px;
-            right: -50px;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
-            pointer-events: none;
-          }
-
-          .modal-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
+            width: min(92vw, 520px);
           }
 
           .modal-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-primary);
-          }
-
-          .modal-subtitle {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 6px;
-            line-height: 1.6;
-          }
-
-          .modal-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            background: rgba(14,165,233,0.12);
-            color: #38bdf8;
-            border: 1px solid rgba(14,165,233,0.2);
-          }
-
-          .modal-body {
-            display: grid;
-            gap: 16px;
-          }
-
-          .form-section {
-            display: grid;
-            gap: 10px;
-          }
-
-          .form-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            text-transform: uppercase;
-          }
-
-          .form-grid {
-            display: grid;
-            gap: 12px;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          }
-
-          .input-date {
-            padding-inline-end: 36px;
-            color-scheme: dark;
-          }
-
-          .input-date::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-            filter: invert(1);
-            opacity: 0.65;
-          }
-
-          .textarea {
-            resize: vertical;
+            margin-bottom: 8px;
           }
 
           .modal-action {
@@ -852,121 +771,108 @@ function Patients() {
 
         <dialog ref={dialogRef} className="modal patients-modal">
           <div className="modal-box patients-modal-panel">
-            <div className="modal-header">
-              <div>
-                <p className="section-label">نموذج المريض</p>
-                <h3 className="modal-title">
-                  {editingPatient ? "تعديل بيانات المريض" : "إضافة مريض"}
-                </h3>
-                <p className="modal-subtitle">
-                  أدخل المعلومات بدقة لضمان متابعة حالة المريض وسجلاته بشكل منظم.
-                </p>
+            <h3 className="modal-title">
+              {editingPatient ? "تعديل بيانات المريض" : "إضافة مريض"}
+            </h3>
+
+            <form className="mt-4 space-y-2" onSubmit={handleSavePatient}>
+              <FormField
+                id="full_name"
+                name="full_name"
+                label="الاسم الكامل"
+                value={form.full_name}
+                onChange={handleFormChange}
+                disabled={isSaving || isGlobalLoading}
+                required
+              />
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="form-control">
+                  <label className="field-label" htmlFor="birth_date">
+                    تاريخ الميلاد
+                  </label>
+                  <input
+                    id="birth_date"
+                    name="birth_date"
+                    type="date"
+                    className="input"
+                    value={form.birth_date}
+                    onChange={handleFormChange}
+                    disabled={isSaving || isGlobalLoading}
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="field-label" htmlFor="gender">
+                    النوع
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    className="select"
+                    value={form.gender}
+                    onChange={handleFormChange}
+                    disabled={isSaving || isGlobalLoading}
+                  >
+                    <option value="">-</option>
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                  </select>
+                </div>
               </div>
-              <span className="modal-chip">
-                {editingPatient ? "تعديل" : "جديد"}
-              </span>
-            </div>
 
-            <form className="mt-4 space-y-3" onSubmit={handleSavePatient}>
-              <div className="modal-body">
-                <div className="form-section">
-                  <p className="form-section-title">بيانات أساسية</p>
-                  <div className="form-grid">
-                    <FormField
-                      id="full_name"
-                      name="full_name"
-                      label="الاسم الكامل"
-                      value={form.full_name}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                      required
-                    />
-                    <div className="form-control">
-                      <label className="field-label" htmlFor="birth_date">
-                        تاريخ الميلاد
-                      </label>
-                      <input
-                        id="birth_date"
-                        name="birth_date"
-                        type="date"
-                        className="input input-date"
-                        value={form.birth_date}
-                        onChange={handleFormChange}
-                        disabled={isSaving || isGlobalLoading}
-                      />
-                    </div>
-                    <div className="form-control">
-                      <label className="field-label" htmlFor="gender">
-                        النوع
-                      </label>
-                      <select
-                        id="gender"
-                        name="gender"
-                        className="select"
-                        value={form.gender}
-                        onChange={handleFormChange}
-                        disabled={isSaving || isGlobalLoading}
-                      >
-                        <option value="">-</option>
-                        <option value="male">ذكر</option>
-                        <option value="female">أنثى</option>
-                      </select>
-                    </div>
-                    <FormField
-                      id="phone"
-                      name="phone"
-                      label="الهاتف"
-                      value={form.phone}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                    <FormField
-                      id="email"
-                      name="email"
-                      type="email"
-                      label="البريد الإلكتروني"
-                      value={form.email}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                  </div>
-                </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <FormField
+                  id="phone"
+                  name="phone"
+                  label="الهاتف"
+                  value={form.phone}
+                  onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
+                />
+                <FormField
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="البريد الإلكتروني"
+                  value={form.email}
+                  onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
+                />
+              </div>
 
-                <div className="form-section">
-                  <p className="form-section-title">معلومات إضافية</p>
-                  <div className="form-grid">
-                    <FormField
-                      id="blood_type"
-                      name="blood_type"
-                      label="فصيلة الدم"
-                      value={form.blood_type}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                    <FormField
-                      id="allergies"
-                      name="allergies"
-                      label="الحساسية"
-                      value={form.allergies}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                    <div className="form-control">
-                      <label className="field-label" htmlFor="notes">
-                        ملاحظات
-                      </label>
-                      <textarea
-                        id="notes"
-                        name="notes"
-                        className="textarea min-h-24"
-                        value={form.notes}
-                        onChange={handleFormChange}
-                        placeholder="ملاحظات إضافية"
-                        disabled={isSaving || isGlobalLoading}
-                      />
-                    </div>
-                  </div>
-                </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <FormField
+                  id="blood_type"
+                  name="blood_type"
+                  label="فصيلة الدم"
+                  value={form.blood_type}
+                  onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
+                />
+                <FormField
+                  id="allergies"
+                  name="allergies"
+                  label="الحساسية"
+                  value={form.allergies}
+                  onChange={handleFormChange}
+                  disabled={isSaving || isGlobalLoading}
+                />
+              </div>
+
+              <div className="form-control">
+                <label className="field-label" htmlFor="notes">
+                  ملاحظات
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  className="textarea min-h-24"
+                  value={form.notes}
+                  onChange={handleFormChange}
+                  placeholder="ملاحظات إضافية"
+                  disabled={isSaving || isGlobalLoading}
+                />
               </div>
 
               {formError ? <div className="patients-alert">{formError}</div> : null}
