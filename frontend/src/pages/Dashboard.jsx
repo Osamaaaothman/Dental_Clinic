@@ -13,7 +13,7 @@ function Dashboard() {
 
   return (
     <AnimatedPage>
-      <motion.div className="space-y-6" variants={staggerContainer} initial="initial" animate="animate">
+      <motion.div className="space-y-6 mx-6 mt-6" variants={staggerContainer} initial="initial" animate="animate">
         <motion.div className="panel-card p-5 sm:p-6" variants={riseItem}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
