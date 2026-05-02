@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedButton from "../components/AnimatedButton.jsx";
 import AnimatedPage from "../components/AnimatedPage.jsx";
-import FormField from "../components/FormField.jsx";
 import {
   createPatientRequest,
   deletePatientRequest,
@@ -576,97 +575,224 @@ function Patients() {
           .pagination-label { font-size: 12px; color: var(--text-secondary); }
           .pagination-actions { display: flex; align-items: center; gap: 8px; }
 
+          /* ===== MODAL ===== */
+
+          .patients-modal {
+            background: transparent;
+            border: none;
+            padding: 0;
+            max-height: 92vh;
+            overflow: visible;
+          }
+
           .patients-modal::backdrop {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
           }
 
           .patients-modal-panel {
             background: var(--bg-surface);
             border: 1px solid var(--border-default);
-            border-radius: 16px;
-            padding: 24px;
-            width: min(92vw, 640px);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+            border-radius: 18px;
+            width: min(95vw, 680px);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04);
             position: relative;
-            overflow: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
+            background-image:
+              linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+            background-size: 36px 36px;
           }
 
-          .patients-modal-panel::after {
+          .patients-modal-panel::before {
             content: '';
             position: absolute;
-            top: -70px;
-            right: -50px;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
+            top: -60px;
+            right: -40px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%);
             pointer-events: none;
+            z-index: 0;
           }
 
-          .modal-header {
+          .modal-inner {
+            position: relative;
+            z-index: 1;
+            padding: 28px 28px 24px;
+          }
+
+          /* Header */
+          .modal-header-bar {
             display: flex;
             align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
+            gap: 16px;
+            margin-bottom: 20px;
+            direction: rtl;
+          }
+
+          .modal-icon-wrap {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(99,102,241,0.2));
+            border: 1px solid rgba(14,165,233,0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(14,165,233,0.18);
+          }
+
+          .modal-header-text { flex: 1; min-width: 0; }
+
+          .modal-header-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.13em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
           }
 
           .modal-title {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--text-primary);
+            line-height: 1.3;
           }
 
           .modal-subtitle {
             font-size: 12px;
             color: var(--text-secondary);
-            margin-top: 6px;
-            line-height: 1.6;
+            margin-top: 5px;
+            line-height: 1.65;
+          }
+
+          .modal-header-end {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
           }
 
           .modal-chip {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
             background: rgba(14,165,233,0.12);
             color: #38bdf8;
-            border: 1px solid rgba(14,165,233,0.2);
+            border: 1px solid rgba(14,165,233,0.22);
           }
 
+          .modal-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            padding: 0;
+          }
+          .modal-close-btn:hover {
+            background: rgba(239,68,68,0.1);
+            border-color: rgba(239,68,68,0.22);
+            color: #f87171;
+          }
+
+          .modal-hr {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            margin: 0 0 22px 0;
+            border: none;
+          }
+
+          /* Form body */
           .modal-body {
-            display: grid;
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
           }
 
           .form-section {
-            display: grid;
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .form-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            direction: rtl;
+          }
+
+          .form-section-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(99,102,241,0.1));
+            border: 1px solid rgba(14,165,233,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            flex-shrink: 0;
           }
 
           .form-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.32);
             text-transform: uppercase;
           }
 
-          .form-grid {
+          .form-grid-2 {
             display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          }
+
+          .form-full { grid-column: 1 / -1; }
+
+          .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+
+          .field-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            display: block;
+            direction: rtl;
+          }
+
+          .field-required {
+            color: rgba(239,68,68,0.75);
+            margin-right: 3px;
           }
 
           .input-date {
             padding-inline-end: 36px;
             color-scheme: dark;
           }
-
           .input-date::-webkit-calendar-picker-indicator {
             cursor: pointer;
             filter: invert(1);
@@ -675,26 +801,44 @@ function Patients() {
 
           .textarea {
             resize: vertical;
+            min-height: 90px;
           }
 
-          .modal-action {
+          .form-error-bar {
+            margin-top: 6px;
+            background: rgba(239,68,68,0.09);
+            border: 1px solid rgba(239,68,68,0.2);
+            color: #f87171;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            direction: rtl;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          /* Action bar */
+          .modal-actions {
             display: flex;
             align-items: center;
             gap: 10px;
             justify-content: flex-start;
-            margin-top: 16px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            direction: rtl;
           }
-
-          .modal-backdrop {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-          }
-
-          .modal-backdrop button { opacity: 0; }
 
           @media (max-width: 820px) {
             .page-header { flex-direction: column; align-items: flex-start; }
             .patients-panel { padding: 16px; }
+          }
+
+          @media (max-width: 600px) {
+            .modal-inner { padding: 20px 16px 18px; }
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .modal-header-bar { flex-wrap: wrap; }
           }
         `}</style>
 
@@ -850,150 +994,234 @@ function Patients() {
           </div>
         </div>
 
-        <dialog ref={dialogRef} className="modal patients-modal">
-          <div className="modal-box patients-modal-panel">
-            <div className="modal-header">
-              <div>
-                <p className="section-label">نموذج المريض</p>
-                <h3 className="modal-title">
-                  {editingPatient ? "تعديل بيانات المريض" : "إضافة مريض"}
-                </h3>
-                <p className="modal-subtitle">
-                  أدخل المعلومات بدقة لضمان متابعة حالة المريض وسجلاته بشكل منظم.
-                </p>
-              </div>
-              <span className="modal-chip">
-                {editingPatient ? "تعديل" : "جديد"}
-              </span>
-            </div>
+        <dialog ref={dialogRef} className="patients-modal">
+          <div className="patients-modal-panel">
+            <div className="modal-inner">
 
-            <form className="mt-4 space-y-3" onSubmit={handleSavePatient}>
-              <div className="modal-body">
-                <div className="form-section">
-                  <p className="form-section-title">بيانات أساسية</p>
-                  <div className="form-grid">
-                    <FormField
-                      id="full_name"
-                      name="full_name"
-                      label="الاسم الكامل"
-                      value={form.full_name}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                      required
-                    />
-                    <div className="form-control">
-                      <label className="field-label" htmlFor="birth_date">
-                        تاريخ الميلاد
-                      </label>
-                      <input
-                        id="birth_date"
-                        name="birth_date"
-                        type="date"
-                        className="input input-date"
-                        value={form.birth_date}
-                        onChange={handleFormChange}
-                        disabled={isSaving || isGlobalLoading}
-                      />
-                    </div>
-                    <div className="form-control">
-                      <label className="field-label" htmlFor="gender">
-                        النوع
-                      </label>
-                      <select
-                        id="gender"
-                        name="gender"
-                        className="select"
-                        value={form.gender}
-                        onChange={handleFormChange}
-                        disabled={isSaving || isGlobalLoading}
-                      >
-                        <option value="">-</option>
-                        <option value="male">ذكر</option>
-                        <option value="female">أنثى</option>
-                      </select>
-                    </div>
-                    <FormField
-                      id="phone"
-                      name="phone"
-                      label="الهاتف"
-                      value={form.phone}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                    <FormField
-                      id="email"
-                      name="email"
-                      type="email"
-                      label="البريد الإلكتروني"
-                      value={form.email}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                  </div>
+              {/* ── Header ── */}
+              <div className="modal-header-bar">
+                <div className="modal-icon-wrap">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
                 </div>
+                <div className="modal-header-text">
+                  <p className="modal-header-label">نموذج المريض</p>
+                  <h3 className="modal-title">
+                    {editingPatient ? "تعديل بيانات المريض" : "إضافة مريض جديد"}
+                  </h3>
+                  <p className="modal-subtitle">
+                    أدخل المعلومات بدقة لضمان متابعة حالة المريض وسجلاته بشكل منظم.
+                  </p>
+                </div>
+                <div className="modal-header-end">
+                  <span className="modal-chip">
+                    {editingPatient ? "تعديل" : "جديد"}
+                  </span>
+                  <button
+                    type="button"
+                    className="modal-close-btn"
+                    onClick={closePatientDialog}
+                    aria-label="إغلاق"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                      <line x1="1" y1="1" x2="13" y2="13"/>
+                      <line x1="13" y1="1" x2="1" y2="13"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
 
-                <div className="form-section">
-                  <p className="form-section-title">معلومات إضافية</p>
-                  <div className="form-grid">
-                    <FormField
-                      id="blood_type"
-                      name="blood_type"
-                      label="فصيلة الدم"
-                      value={form.blood_type}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                    <FormField
-                      id="allergies"
-                      name="allergies"
-                      label="الحساسية"
-                      value={form.allergies}
-                      onChange={handleFormChange}
-                      disabled={isSaving || isGlobalLoading}
-                    />
-                    <div className="form-control">
+              <hr className="modal-hr" />
+
+              <form onSubmit={handleSavePatient}>
+                <div className="modal-body">
+
+                  {/* ── Section 1: Basic Data ── */}
+                  <div className="form-section">
+                    <div className="form-section-header">
+                      <div className="form-section-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="4" width="20" height="16" rx="3"/>
+                          <path d="M8 10h8M8 14h5"/>
+                        </svg>
+                      </div>
+                      <p className="form-section-title">البيانات الأساسية</p>
+                    </div>
+                    <div className="form-grid-2">
+                      <div className="form-field">
+                        <label className="field-label" htmlFor="full_name">
+                          الاسم الكامل<span className="field-required">*</span>
+                        </label>
+                        <input
+                          id="full_name"
+                          name="full_name"
+                          className="input"
+                          value={form.full_name}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                          placeholder="اسم المريض كاملاً"
+                          required
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="field-label" htmlFor="birth_date">
+                          تاريخ الميلاد
+                        </label>
+                        <input
+                          id="birth_date"
+                          name="birth_date"
+                          type="date"
+                          className="input input-date"
+                          value={form.birth_date}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="field-label" htmlFor="gender">
+                          النوع
+                        </label>
+                        <select
+                          id="gender"
+                          name="gender"
+                          className="select"
+                          value={form.gender}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                        >
+                          <option value="">— اختر —</option>
+                          <option value="male">ذكر</option>
+                          <option value="female">أنثى</option>
+                        </select>
+                      </div>
+                      <div className="form-field">
+                        <label className="field-label" htmlFor="phone">
+                          رقم الهاتف
+                        </label>
+                        <input
+                          id="phone"
+                          name="phone"
+                          className="input"
+                          value={form.phone}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                          placeholder="+966 5XX XXX XXXX"
+                        />
+                      </div>
+                      <div className="form-field form-full">
+                        <label className="field-label" htmlFor="email">
+                          البريد الإلكتروني
+                        </label>
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          className="input"
+                          value={form.email}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                          placeholder="example@email.com"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Section 2: Medical Info ── */}
+                  <div className="form-section">
+                    <div className="form-section-header">
+                      <div className="form-section-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                      </div>
+                      <p className="form-section-title">المعلومات الطبية</p>
+                    </div>
+                    <div className="form-grid-2">
+                      <div className="form-field">
+                        <label className="field-label" htmlFor="blood_type">
+                          فصيلة الدم
+                        </label>
+                        <input
+                          id="blood_type"
+                          name="blood_type"
+                          className="input"
+                          value={form.blood_type}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                          placeholder="مثال: A+"
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="field-label" htmlFor="allergies">
+                          الحساسية
+                        </label>
+                        <input
+                          id="allergies"
+                          name="allergies"
+                          className="input"
+                          value={form.allergies}
+                          onChange={handleFormChange}
+                          disabled={isSaving || isGlobalLoading}
+                          placeholder="نوع الحساسية إن وجدت"
+                        />
+                      </div>
+                    </div>
+                    <div className="form-field">
                       <label className="field-label" htmlFor="notes">
-                        ملاحظات
+                        ملاحظات إضافية
                       </label>
                       <textarea
                         id="notes"
                         name="notes"
-                        className="textarea min-h-24"
+                        className="textarea"
                         value={form.notes}
                         onChange={handleFormChange}
-                        placeholder="ملاحظات إضافية"
+                        placeholder="أي ملاحظات طبية أو تنبيهات مهمة..."
                         disabled={isSaving || isGlobalLoading}
                       />
                     </div>
                   </div>
+
                 </div>
-              </div>
 
-              {formError ? <div className="patients-alert">{formError}</div> : null}
+                {formError ? (
+                  <div className="form-error-bar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                    </svg>
+                    {formError}
+                  </div>
+                ) : null}
 
-              <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={closePatientDialog}
-                  disabled={isSaving || isGlobalLoading}
-                >
-                  إغلاق
-                </button>
-                <AnimatedButton
-                  type="submit"
-                  className="btn-primary"
-                  disabled={isSaving || isGlobalLoading}
-                >
-                  {isSaving ? "جارٍ الحفظ..." : "حفظ"}
-                </AnimatedButton>
-              </div>
-            </form>
+                <div className="modal-actions">
+                  <AnimatedButton
+                    type="submit"
+                    className="btn-primary"
+                    disabled={isSaving || isGlobalLoading}
+                  >
+                    {isSaving
+                      ? "جارٍ الحفظ..."
+                      : editingPatient
+                        ? "حفظ التعديلات"
+                        : "إضافة المريض"}
+                  </AnimatedButton>
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={closePatientDialog}
+                    disabled={isSaving || isGlobalLoading}
+                  >
+                    إلغاء
+                  </button>
+                </div>
+              </form>
+
+            </div>
           </div>
-
-          <form method="dialog" className="modal-backdrop">
-            <button aria-label="close">close</button>
-          </form>
         </dialog>
       </div>
     </AnimatedPage>
