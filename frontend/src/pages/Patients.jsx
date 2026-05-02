@@ -1,32 +1,32 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AnimatedButton from '../components/AnimatedButton.jsx';
-import AnimatedPage from '../components/AnimatedPage.jsx';
-import FormField from '../components/FormField.jsx';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AnimatedButton from "../components/AnimatedButton.jsx";
+import AnimatedPage from "../components/AnimatedPage.jsx";
+import FormField from "../components/FormField.jsx";
 import {
   createPatientRequest,
   deletePatientRequest,
   getPatientRequest,
   getPatientsRequest,
   updatePatientRequest,
-} from '../api/index.js';
-import { useAuthStore } from '../store/authStore.js';
-import { useUiStore } from '../store/uiStore.js';
+} from "../api/index.js";
+import { useAuthStore } from "../store/authStore.js";
+import { useUiStore } from "../store/uiStore.js";
 
 const EMPTY_FORM = {
-  full_name: '',
-  birth_date: '',
-  gender: '',
-  phone: '',
-  email: '',
-  blood_type: '',
-  allergies: '',
-  notes: '',
+  full_name: "",
+  birth_date: "",
+  gender: "",
+  phone: "",
+  email: "",
+  blood_type: "",
+  allergies: "",
+  notes: "",
 };
 
 function normalizePatientForm(form) {
   return {
-    full_name: form.full_name?.trim() || '',
+    full_name: form.full_name?.trim() || "",
     birth_date: form.birth_date || null,
     gender: form.gender || null,
     phone: form.phone?.trim() || null,
@@ -35,6 +35,16 @@ function normalizePatientForm(form) {
     allergies: form.allergies?.trim() || null,
     notes: form.notes?.trim() || null,
   };
+}
+
+function getPatientInitials(name) {
+  if (!name) return "؟";
+  const parts = String(name).trim().split(" ").filter(Boolean);
+  const initials = parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+  return initials || String(name).slice(0, 1);
 }
 
 function Patients() {
@@ -49,8 +59,8 @@ function Patients() {
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchDraft, setSearchDraft] = useState('');
-  const [search, setSearch] = useState('');
+  const [searchDraft, setSearchDraft] = useState("");
+  const [search, setSearch] = useState("");
   const [listError, setListError] = useState(null);
 
   const dialogRef = useRef(null);
@@ -84,7 +94,8 @@ function Patients() {
       setTotalPages(data.totalPages || 1);
       setPage(data.page || nextPage);
     } catch (error) {
-      const message = error.response?.data?.message || 'تعذر تحميل قائمة المرضى';
+      const message =
+        error.response?.data?.message || "تعذر تحميل قائمة المرضى";
       setPatients([]);
       setTotalPages(1);
       setListError(message);
@@ -94,7 +105,7 @@ function Patients() {
   }
 
   useEffect(() => {
-    loadPatients({ nextPage: 1, nextSearch: '' });
+    loadPatients({ nextPage: 1, nextSearch: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clinicId]);
 
@@ -119,19 +130,22 @@ function Patients() {
       const fullPatient = data.patient;
       setEditingPatient(fullPatient);
       setForm({
-        full_name: fullPatient.full_name || '',
-        birth_date: fullPatient.birth_date ? String(fullPatient.birth_date).slice(0, 10) : '',
-        gender: fullPatient.gender || '',
-        phone: fullPatient.phone || '',
-        email: fullPatient.email || '',
-        blood_type: fullPatient.blood_type || '',
-        allergies: fullPatient.allergies || '',
-        notes: fullPatient.notes || '',
+        full_name: fullPatient.full_name || "",
+        birth_date: fullPatient.birth_date
+          ? String(fullPatient.birth_date).slice(0, 10)
+          : "",
+        gender: fullPatient.gender || "",
+        phone: fullPatient.phone || "",
+        email: fullPatient.email || "",
+        blood_type: fullPatient.blood_type || "",
+        allergies: fullPatient.allergies || "",
+        notes: fullPatient.notes || "",
       });
       dialogRef.current?.showModal?.();
     } catch (error) {
-      const message = error.response?.data?.message || 'تعذر تحميل بيانات المريض';
-      pushToast({ type: 'error', message });
+      const message =
+        error.response?.data?.message || "تعذر تحميل بيانات المريض";
+      pushToast({ type: "error", message });
     } finally {
       setGlobalLoading(false);
     }
@@ -140,8 +154,6 @@ function Patients() {
   function closePatientDialog() {
     dialogRef.current?.close?.();
   }
-
-  
 
   function handleFormChange(event) {
     const { name, value } = event.target;
@@ -154,7 +166,7 @@ function Patients() {
 
     const payload = normalizePatientForm(form);
     if (!payload.full_name) {
-      setFormError('اسم المريض مطلوب');
+      setFormError("اسم المريض مطلوب");
       return;
     }
 
@@ -162,12 +174,12 @@ function Patients() {
     try {
       if (editingPatient?.id) {
         await updatePatientRequest(editingPatient.id, payload);
-        pushToast({ type: 'success', message: 'تم تحديث بيانات المريض' });
+        pushToast({ type: "success", message: "تم تحديث بيانات المريض" });
         closePatientDialog();
         await loadPatients();
       } else {
         const data = await createPatientRequest(payload);
-        pushToast({ type: 'success', message: 'تمت إضافة المريض بنجاح' });
+        pushToast({ type: "success", message: "تمت إضافة المريض بنجاح" });
         closePatientDialog();
         await loadPatients({ nextPage: 1 });
         if (data?.patient?.id) {
@@ -175,9 +187,9 @@ function Patients() {
         }
       }
     } catch (error) {
-      const message = error.response?.data?.message || 'تعذر حفظ بيانات المريض';
+      const message = error.response?.data?.message || "تعذر حفظ بيانات المريض";
       setFormError(message);
-      pushToast({ type: 'error', message });
+      pushToast({ type: "error", message });
     } finally {
       setGlobalLoading(false);
     }
@@ -185,19 +197,19 @@ function Patients() {
 
   function handleDeletePatient(patient) {
     openModal({
-      title: 'حذف المريض',
+      title: "حذف المريض",
       description: `هل تريد حذف المريض: ${patient.full_name}؟ سيتم حذف السجل المرتبط.`,
-      confirmText: 'حذف',
-      cancelText: 'إلغاء',
+      confirmText: "حذف",
+      cancelText: "إلغاء",
       onConfirm: async () => {
         setGlobalLoading(true);
         try {
           await deletePatientRequest(patient.id);
-          pushToast({ type: 'success', message: 'تم حذف المريض' });
+          pushToast({ type: "success", message: "تم حذف المريض" });
           await loadPatients({ nextPage: 1 });
         } catch (error) {
-          const message = error.response?.data?.message || 'تعذر حذف المريض';
-          pushToast({ type: 'error', message });
+          const message = error.response?.data?.message || "تعذر حذف المريض";
+          pushToast({ type: "error", message });
         } finally {
           setGlobalLoading(false);
         }
@@ -207,269 +219,665 @@ function Patients() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-5">
-        <div className="panel-card p-5 sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="field-label">ملف المرضى</p>
-              <h2 className="section-title">إدارة المرضى</h2>
-              <p className="subtle-text mt-1">{user?.email || ''}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="badge badge-outline badge-primary">{selectedClinic?.name || 'بدون عيادة'}</div>
-            </div>
+      <div className="patients-page">
+        <style>{`
+          .patients-page {
+            --bg-base: #0c0e14;
+            --bg-surface: #13161f;
+            --bg-raised: #1a1d28;
+            --bg-overlay: rgba(255,255,255,0.04);
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-default: rgba(255,255,255,0.09);
+            --border-active: rgba(14,165,233,0.2);
+            --text-primary: #f1f5f9;
+            --text-secondary: rgba(255,255,255,0.55);
+            --text-muted: rgba(255,255,255,0.25);
+            --text-active: #38bdf8;
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+          }
+
+          .patients-page *, .patients-page *::before, .patients-page *::after { box-sizing: border-box; }
+
+          @media (max-width: 640px) {
+            .patients-page { padding: 16px; }
+          }
+
+          .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+          }
+
+          .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+          }
+
+          .page-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+          }
+
+          .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.13em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-family: 'Cairo', sans-serif;
+          }
+
+          .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            white-space: nowrap;
+          }
+
+          .badge-info { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.2); }
+          .badge-neutral { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.09); }
+
+          .patients-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: 16px;
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .patients-panel::after {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -40px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(56,189,248,0.09) 0%, transparent 70%);
+            pointer-events: none;
+          }
+
+          .search-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+          }
+
+          .search-field { flex: 1; min-width: 220px; }
+
+          .field-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 6px;
+            display: block;
+          }
+
+          .label {
+            display: block;
+            margin-bottom: 6px;
+          }
+
+          .label-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+          }
+
+          .label-text-alt {
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+          }
+
+          .text-error { color: #f87171; }
+          .input-error { border-color: rgba(239,68,68,0.45); }
+
+          .input, .select, .textarea {
+            background: var(--bg-raised);
+            border: 1px solid var(--border-default);
+            border-radius: 10px;
+            padding: 9px 14px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            outline: none;
+          }
+
+          .input::placeholder, .textarea::placeholder { color: rgba(255,255,255,0.22); }
+          .input:focus, .select:focus, .textarea:focus { border-color: rgba(14,165,233,0.4); }
+
+          .card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 16px 20px;
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+          }
+
+          .card:hover {
+            border-color: rgba(255,255,255,0.12);
+            background: var(--bg-raised);
+          }
+
+          .patients-grid {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+          }
+
+          .patient-card { display: flex; flex-direction: column; gap: 12px; }
+
+          .patient-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+          }
+
+          .patient-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+          }
+
+          .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(14,165,233,0.15);
+            border: 1px solid rgba(14,165,233,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+          }
+
+          .patient-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+          }
+
+          .patient-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+          }
+
+          .patient-badges {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+          }
+
+          .divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 6px 0;
+          }
+
+          .patient-details {
+            display: grid;
+            gap: 6px;
+          }
+
+          .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+          }
+
+          .detail-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+          }
+
+          .detail-value {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: left;
+          }
+
+          .patient-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+          }
+
+          .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            box-shadow: 0 0 16px rgba(14,165,233,0.25);
+          }
+          .btn-primary:hover { opacity: 0.88; }
+          .btn-primary:active { transform: scale(0.97); }
+          .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+          .btn-ghost {
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .btn-ghost:hover {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+          }
+          .btn-ghost:disabled { opacity: 0.45; cursor: not-allowed; }
+
+          .btn-danger {
+            background: rgba(239,68,68,0.12);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .btn-danger:hover { background: rgba(239,68,68,0.2); }
+          .btn-danger:disabled { opacity: 0.45; cursor: not-allowed; }
+
+          .btn-sm {
+            padding: 7px 14px;
+            font-size: 12px;
+          }
+
+          .alert {
+            margin-top: 12px;
+            background: rgba(239,68,68,0.09);
+            border: 1px solid rgba(239,68,68,0.14);
+            color: #f87171;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+          }
+
+          .empty-card {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+          }
+
+          .pagination-row {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+          }
+
+          .pagination-label { font-size: 12px; color: var(--text-secondary); }
+          .pagination-actions { display: flex; align-items: center; gap: 8px; }
+
+          .patients-modal::backdrop {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+          }
+
+          .patients-modal-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: 16px;
+            padding: 24px;
+            width: min(92vw, 520px);
+          }
+
+          .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+          }
+
+          .modal-action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-top: 16px;
+          }
+
+          .modal-backdrop {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+          }
+
+          .modal-backdrop button { opacity: 0; }
+
+          @media (max-width: 820px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .patients-panel { padding: 16px; }
+          }
+        `}</style>
+
+        <div className="page-header">
+          <div>
+            <p className="section-label">ملف المرضى</p>
+            <h2 className="page-title">إدارة المرضى</h2>
+            <p className="page-subtitle">{user?.email || ""}</p>
+          </div>
+          <div className="header-actions">
+            <span className="badge badge-info">
+              {selectedClinic?.name || "بدون عيادة"}
+            </span>
+            <AnimatedButton
+              className="btn-primary"
+              type="button"
+              onClick={() => openPatientDialog(null)}
+            >
+              إضافة مريض
+            </AnimatedButton>
           </div>
         </div>
 
-        <div className="panel-card p-4 sm:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex-1">
-              <label className="label" htmlFor="search">
-                <span className="label-text font-semibold">بحث بالاسم</span>
+        <div className="patients-panel">
+          <div className="search-row">
+            <div className="search-field">
+              <label className="field-label" htmlFor="search">
+                بحث بالاسم
               </label>
-              <div className="join w-full">
-                <input
-                  id="search"
-                  className="input input-bordered join-item w-full"
-                  value={searchDraft}
-                  onChange={(e) => setSearchDraft(e.target.value)}
-                  placeholder="اكتب اسم المريض"
-                />
-                <button
-                  type="button"
-                  className="btn btn-primary join-item"
-                  onClick={() => {
-                    setPage(1);
-                    setSearch(searchDraft.trim());
-                  }}
-                >
-                  بحث
-                </button>
-              </div>
+              <input
+                id="search"
+                className="input"
+                value={searchDraft}
+                onChange={(e) => setSearchDraft(e.target.value)}
+                placeholder="اكتب اسم المريض"
+              />
             </div>
-
-            <div className="flex items-center gap-2">
-              <AnimatedButton className="btn btn-primary" type="button" onClick={() => openPatientDialog(null)}>
-                إضافة مريض
+            <div className="search-actions">
+              <AnimatedButton
+                type="button"
+                className="btn-primary"
+                onClick={() => {
+                  setPage(1);
+                  setSearch(searchDraft.trim());
+                }}
+              >
+                بحث
               </AnimatedButton>
             </div>
           </div>
 
-          {listError ? <div className="alert alert-error text-sm mt-4">{listError}</div> : null}
+          {listError ? <div className="alert">{listError}</div> : null}
 
-          <div className="mt-4 hidden overflow-x-auto rounded-2xl border border-base-300 lg:block">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>الاسم</th>
-                  <th>الهاتف</th>
-                  <th>النوع</th>
-                  <th>التاريخ</th>
-                  <th className="text-left">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patients.map((patient) => (
-                  <tr key={patient.id}>
-                    <td className="font-semibold">{patient.full_name}</td>
-                    <td>{patient.phone || '-'}</td>
-                    <td>{patient.gender === 'male' ? 'ذكر' : patient.gender === 'female' ? 'أنثى' : '-'}</td>
-                    <td>{patient.created_at ? String(patient.created_at).slice(0, 10) : '-'}</td>
-                    <td className="text-left">
-                      <div className="flex flex-wrap gap-2">
-                        <AnimatedButton
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => navigate(`/patients/${patient.id}`)}
-                        >
-                          الأسنان
-                        </AnimatedButton>
-                        <AnimatedButton
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => openPatientDialog(patient)}
-                        >
-                          تعديل
-                        </AnimatedButton>
-                        <AnimatedButton
-                          type="button"
-                          className="btn btn-error btn-outline btn-sm"
-                          onClick={() => handleDeletePatient(patient)}
-                        >
-                          حذف
-                        </AnimatedButton>
+          <div className="patients-grid">
+            {patients.map((patient) => {
+              const genderLabel =
+                patient.gender === "male"
+                  ? "ذكر"
+                  : patient.gender === "female"
+                    ? "أنثى"
+                    : "غير محدد";
+              const createdLabel = patient.created_at
+                ? String(patient.created_at).slice(0, 10)
+                : "بدون تاريخ";
+              return (
+                <div key={patient.id} className="card patient-card">
+                  <div className="patient-card-header">
+                    <div className="patient-identity">
+                      <div className="avatar">
+                        {getPatientInitials(patient.full_name)}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-
-                {patients.length === 0 ? (
-                  <tr>
-                    <td colSpan={5}>
-                      <div className="py-6 text-center text-sm text-base-content/70">لا توجد بيانات.</div>
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-4 grid gap-3 lg:hidden">
-            {patients.map((patient) => (
-              <div key={patient.id} className="stat-tile">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-base-content">{patient.full_name}</h3>
-                  <span className="text-xs text-base-content/60">{patient.created_at ? String(patient.created_at).slice(0, 10) : '-'}</span>
+                      <div>
+                        <div className="patient-name">{patient.full_name}</div>
+                        <div className="patient-meta">
+                          الهاتف: {patient.phone || "غير متوفر"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="patient-badges">
+                      <span className="badge badge-neutral">{genderLabel}</span>
+                      <span className="badge badge-info">{createdLabel}</span>
+                    </div>
+                  </div>
+                  <div className="divider" />
+                  <div className="patient-details">
+                    <div className="detail-row">
+                      <span className="detail-label">الهاتف</span>
+                      <span className="detail-value">
+                        {patient.phone || "-"}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">النوع</span>
+                      <span className="detail-value">{genderLabel}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">تاريخ الإضافة</span>
+                      <span className="detail-value">{createdLabel}</span>
+                    </div>
+                  </div>
+                  <div className="patient-actions">
+                    <AnimatedButton
+                      type="button"
+                      className="btn-primary btn-sm"
+                      onClick={() => navigate(`/patients/${patient.id}`)}
+                    >
+                      الأسنان
+                    </AnimatedButton>
+                    <AnimatedButton
+                      type="button"
+                      className="btn-ghost btn-sm"
+                      onClick={() => openPatientDialog(patient)}
+                    >
+                      تعديل
+                    </AnimatedButton>
+                    <AnimatedButton
+                      type="button"
+                      className="btn-danger btn-sm"
+                      onClick={() => handleDeletePatient(patient)}
+                    >
+                      حذف
+                    </AnimatedButton>
+                  </div>
                 </div>
-                <div className="mt-2 space-y-1 text-sm text-base-content/70">
-                  <div>الهاتف: {patient.phone || '-'}</div>
-                  <div>النوع: {patient.gender === 'male' ? 'ذكر' : patient.gender === 'female' ? 'أنثى' : '-'}</div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <AnimatedButton type="button" className="btn btn-secondary btn-sm" onClick={() => navigate(`/patients/${patient.id}`)}>
-                    الأسنان
-                  </AnimatedButton>
-                  <AnimatedButton type="button" className="btn btn-outline btn-sm" onClick={() => openPatientDialog(patient)}>
-                    تعديل
-                  </AnimatedButton>
-                  <AnimatedButton type="button" className="btn btn-error btn-outline btn-sm" onClick={() => handleDeletePatient(patient)}>
-                    حذف
-                  </AnimatedButton>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {patients.length === 0 ? (
-              <div className="stat-tile text-center text-sm text-base-content/70">لا توجد بيانات.</div>
+              <div className="card empty-card">لا توجد بيانات.</div>
             ) : null}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-base-content/70">الصفحة: {pageLabel}</div>
-            <div className="join">
-              <button
+          <div className="pagination-row">
+            <div className="pagination-label">الصفحة: {pageLabel}</div>
+            <div className="pagination-actions">
+              <AnimatedButton
                 type="button"
-                className="btn join-item btn-sm"
+                className="btn-ghost btn-sm"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
                 السابق
-              </button>
-              <button
+              </AnimatedButton>
+              <AnimatedButton
                 type="button"
-                className="btn join-item btn-sm"
+                className="btn-ghost btn-sm"
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >
                 التالي
-              </button>
+              </AnimatedButton>
             </div>
           </div>
         </div>
-      </div>
 
-      <dialog ref={dialogRef} className="modal">
-        <div className="modal-box w-11/12 max-w-2xl border border-base-300/70 bg-base-100">
-          <h3 className="text-lg font-extrabold text-neutral">
-            {editingPatient ? 'تعديل بيانات المريض' : 'إضافة مريض'}
-          </h3>
+        <dialog ref={dialogRef} className="modal patients-modal">
+          <div className="modal-box patients-modal-panel">
+            <h3 className="modal-title">
+              {editingPatient ? "تعديل بيانات المريض" : "إضافة مريض"}
+            </h3>
 
-          <form className="mt-4 space-y-2" onSubmit={handleSavePatient}>
-            <FormField
-              id="full_name"
-              name="full_name"
-              label="الاسم الكامل"
-              value={form.full_name}
-              onChange={handleFormChange}
-              required
-            />
+            <form className="mt-4 space-y-2" onSubmit={handleSavePatient}>
+              <FormField
+                id="full_name"
+                name="full_name"
+                label="الاسم الكامل"
+                value={form.full_name}
+                onChange={handleFormChange}
+                required
+              />
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="form-control">
-                <label className="label" htmlFor="birth_date">
-                  <span className="label-text font-semibold">تاريخ الميلاد</span>
-                </label>
-                <input
-                  id="birth_date"
-                  name="birth_date"
-                  type="date"
-                  className="input input-bordered"
-                  value={form.birth_date}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="form-control">
+                  <label className="field-label" htmlFor="birth_date">
+                    تاريخ الميلاد
+                  </label>
+                  <input
+                    id="birth_date"
+                    name="birth_date"
+                    type="date"
+                    className="input"
+                    value={form.birth_date}
+                    onChange={handleFormChange}
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="field-label" htmlFor="gender">
+                    النوع
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    className="select"
+                    value={form.gender}
+                    onChange={handleFormChange}
+                  >
+                    <option value="">-</option>
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <FormField
+                  id="phone"
+                  name="phone"
+                  label="الهاتف"
+                  value={form.phone}
+                  onChange={handleFormChange}
+                />
+                <FormField
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="البريد الإلكتروني"
+                  value={form.email}
+                  onChange={handleFormChange}
+                />
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <FormField
+                  id="blood_type"
+                  name="blood_type"
+                  label="فصيلة الدم"
+                  value={form.blood_type}
+                  onChange={handleFormChange}
+                />
+                <FormField
+                  id="allergies"
+                  name="allergies"
+                  label="الحساسية"
+                  value={form.allergies}
                   onChange={handleFormChange}
                 />
               </div>
 
               <div className="form-control">
-                <label className="label" htmlFor="gender">
-                  <span className="label-text font-semibold">النوع</span>
+                <label className="field-label" htmlFor="notes">
+                  ملاحظات
                 </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  className="select select-bordered"
-                  value={form.gender}
+                <textarea
+                  id="notes"
+                  name="notes"
+                  className="textarea min-h-24"
+                  value={form.notes}
                   onChange={handleFormChange}
-                >
-                  <option value="">-</option>
-                  <option value="male">ذكر</option>
-                  <option value="female">أنثى</option>
-                </select>
+                  placeholder="ملاحظات إضافية"
+                />
               </div>
-            </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <FormField id="phone" name="phone" label="الهاتف" value={form.phone} onChange={handleFormChange} />
-              <FormField id="email" name="email" type="email" label="البريد الإلكتروني" value={form.email} onChange={handleFormChange} />
-            </div>
+              {formError ? <div className="alert">{formError}</div> : null}
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <FormField
-                id="blood_type"
-                name="blood_type"
-                label="فصيلة الدم"
-                value={form.blood_type}
-                onChange={handleFormChange}
-              />
-              <FormField
-                id="allergies"
-                name="allergies"
-                label="الحساسية"
-                value={form.allergies}
-                onChange={handleFormChange}
-              />
-            </div>
+              <div className="modal-action">
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  onClick={closePatientDialog}
+                >
+                  إغلاق
+                </button>
+                <AnimatedButton type="submit" className="btn-primary">
+                  حفظ
+                </AnimatedButton>
+              </div>
+            </form>
+          </div>
 
-            <div className="form-control">
-              <label className="label" htmlFor="notes">
-                <span className="label-text font-semibold">ملاحظات</span>
-              </label>
-              <textarea
-                id="notes"
-                name="notes"
-                className="textarea textarea-bordered min-h-24"
-                value={form.notes}
-                onChange={handleFormChange}
-                placeholder="ملاحظات إضافية"
-              />
-            </div>
-
-            {formError ? <div className="alert alert-error py-2 text-sm">{formError}</div> : null}
-
-            <div className="modal-action">
-              <button type="button" className="btn" onClick={closePatientDialog}>
-                إغلاق
-              </button>
-              <button type="submit" className="btn btn-primary">
-                حفظ
-              </button>
-            </div>
+          <form method="dialog" className="modal-backdrop">
+            <button aria-label="close">close</button>
           </form>
-        </div>
-
-        <form method="dialog" className="modal-backdrop">
-          <button aria-label="close">close</button>
-        </form>
-      </dialog>
+        </dialog>
+      </div>
     </AnimatedPage>
   );
 }
