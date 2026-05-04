@@ -64,9 +64,10 @@ export async function getSessionById(session_id, clinic_id) {
   const { rows } = await query(`
     SELECT s.*,
       (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE session_id = s.id) as amount_paid,
-      (SELECT json_agg(json_build_object('id', t.id, 'tooth_number', t.tooth_number, 'status', t.status)
+      (SELECT json_agg(json_build_object('id', t.id, 'tooth_number', t.tooth_number, 'status', t.status))
        FROM teeth t
-       WHERE t.patient_id = s.patient_id AND t.tooth_number = ANY(ARRAY(SELECT jsonb_array_elements_text(s.teeth_treated)::int))
+       WHERE t.patient_id = s.patient_id
+         AND t.tooth_number = ANY(ARRAY(SELECT jsonb_array_elements_text(COALESCE(s.teeth_treated, '[]'::jsonb))::int))
       ) as treated_teeth_details
     FROM sessions s
     WHERE s.id = $1 AND s.clinic_id = $2

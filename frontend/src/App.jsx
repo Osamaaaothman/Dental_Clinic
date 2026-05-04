@@ -9,8 +9,10 @@ import AppLayout from './components/layout/AppLayout.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import PatientTeeth from './pages/PatientTeeth.jsx';
+import Appointments from './pages/Appointments.jsx';
 import SessionDetail from './pages/SessionDetail.jsx';
 import SessionsList from './pages/SessionsList.jsx';
+import SessionsOverview from './pages/SessionsOverview.jsx';
 import SessionWizard from './pages/SessionWizard.jsx';
 import Patients from './pages/Patients.jsx';
 import SelectClinic from './pages/SelectClinic.jsx';
@@ -58,8 +60,10 @@ function App() {
           <Route element={<ProtectedRoute requireClinic />}>
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/appointments" element={<Appointments />} />
               <Route path="/patients" element={<Patients />} />
               <Route path="/patients/:id" element={<PatientTeeth />} />
+              <Route path="/sessions" element={<SessionsOverview />} />
               <Route path="/patients/:id/sessions" element={<SessionsList />} />
               <Route path="/patients/:id/sessions/new" element={<SessionWizard />} />
               <Route path="/patients/:id/sessions/:sessionId" element={<SessionDetail />} />

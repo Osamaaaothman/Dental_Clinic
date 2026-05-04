@@ -5,6 +5,9 @@ import {
   getPatientRequest,
   getPatientTeethRequest,
   updateToothStatusRequest,
+  getAttachmentsRequest,
+  uploadAttachmentRequest,
+  deleteAttachmentRequest,
 } from '../api/index.js';
 import { useAuthStore } from '../store/authStore.js';
 import { useUiStore } from '../store/uiStore.js';
@@ -234,6 +237,12 @@ function PatientTeeth() {
   const [statusDraft, setStatusDraft] = useState('unknown');
   const [notesDraft, setNotesDraft] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const [attachmentDraft, setAttachmentDraft] = useState({
+    file_type: 'xray',
+    description: '',
+    file: null,
+  });
 
   const chartRef = useRef(null);
 
@@ -266,6 +275,62 @@ function PatientTeeth() {
   }
 
   useEffect(() => { loadData(); }, [id]); // eslint-disable-line
+
+  useEffect(() => {
+    if (activeTab === 'attachments') {
+      loadAttachments();
+    }
+  }, [activeTab]); // eslint-disable-line
+
+  async function loadAttachments() {
+    if (!id) return;
+    setGlobalLoading(true);
+    try {
+      const data = await getAttachmentsRequest({ patientId: id });
+      setAttachments(data.attachments || []);
+    } catch (err) {
+      pushToast({ type: 'error', message: err.response?.data?.message || 'تعذر تحميل المرفقات' });
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  async function handleUploadAttachment(e) {
+    e.preventDefault();
+    if (!attachmentDraft.file) {
+      pushToast({ type: 'error', message: 'يرجى اختيار ملف' });
+      return;
+    }
+    setGlobalLoading(true);
+    try {
+      const data = await uploadAttachmentRequest({
+        patientId: id,
+        fileType: attachmentDraft.file_type,
+        description: attachmentDraft.description,
+        file: attachmentDraft.file,
+      });
+      setAttachments((prev) => [data.attachment, ...prev]);
+      setAttachmentDraft({ file_type: 'xray', description: '', file: null });
+      pushToast({ type: 'success', message: 'تم رفع الملف' });
+    } catch (err) {
+      pushToast({ type: 'error', message: err.response?.data?.message || 'تعذر رفع الملف' });
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  async function handleDeleteAttachment(attachmentId) {
+    setGlobalLoading(true);
+    try {
+      await deleteAttachmentRequest(attachmentId);
+      setAttachments((prev) => prev.filter((item) => item.id !== attachmentId));
+      pushToast({ type: 'success', message: 'تم حذف الملف' });
+    } catch (err) {
+      pushToast({ type: 'error', message: err.response?.data?.message || 'تعذر حذف الملف' });
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
 
   function openModal(tooth) {
     setSelectedTooth(tooth);
@@ -956,11 +1021,77 @@ function PatientTeeth() {
           <div className="pt-card">
             <div className="pt-title">مرفقات المريض</div>
             <div className="pt-sub" style={{ marginBottom: 16 }}>
-              سيتم ربط المرفقات من شاشة المريض والجلسات.
+              رفع ملفات عامة للمريض (غير مرتبطة بجلسة).
             </div>
-            <button className="pt-btn-primary" onClick={() => navigate(`/patients/${id}/sessions/new`)}>
-              إضافة جلسة مع مرفقات
-            </button>
+
+            <form onSubmit={handleUploadAttachment} style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+                <div>
+                  <label className="pt-field-label">نوع الملف</label>
+                  <select
+                    className="pt-textarea"
+                    style={{ minHeight: 'unset' }}
+                    value={attachmentDraft.file_type}
+                    onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, file_type: e.target.value }))}
+                  >
+                    <option value="xray">أشعة</option>
+                    <option value="photo">صورة</option>
+                    <option value="document">مستند</option>
+                    <option value="other">أخرى</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="pt-field-label">الوصف</label>
+                  <input
+                    className="pt-textarea"
+                    style={{ minHeight: 'unset' }}
+                    value={attachmentDraft.description}
+                    onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, description: e.target.value }))}
+                    placeholder="اختياري"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="pt-field-label">الملف</label>
+                <input
+                  type="file"
+                  className="pt-textarea"
+                  style={{ minHeight: 'unset' }}
+                  onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, file: e.target.files?.[0] || null }))}
+                />
+              </div>
+              <button className="pt-btn-primary" type="submit">
+                رفع الملف
+              </button>
+            </form>
+
+            <div style={{ display: 'grid', gap: 10 }}>
+              {attachments.map((item) => (
+                <div key={item.id} className="pt-selected-card" style={{ padding: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{item.file_type}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{item.description || 'بدون وصف'}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{item.uploaded_at?.slice(0, 10)}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <a className="pt-btn-ghost" href={item.file_url} target="_blank" rel="noreferrer">
+                        فتح
+                      </a>
+                      <button type="button" className="pt-btn-ghost" onClick={() => handleDeleteAttachment(item.id)}>
+                        حذف
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {attachments.length === 0 && (
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+                  لا توجد ملفات حالياً.
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
