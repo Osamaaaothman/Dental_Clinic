@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import authRoutes from './routes/auth.js';
 import clinicsRoutes from './routes/clinics.js';
+import sessionsRoutes from './routes/sessions.js';
+import attachmentsRoutes from './routes/attachments.js';
 import patientsRoutes from './routes/patients.js';
 import teethRoutes from './routes/teeth.js';
 import { verifyToken } from './middleware/auth.js';
@@ -71,6 +73,8 @@ app.get('/api/debug', async (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/clinics', verifyToken, clinicsRoutes);
+app.use('/api/sessions', sessionsRoutes);
+app.use('/api/attachments', attachmentsRoutes);
 app.use('/api/patients', patientsRoutes);
 app.use('/api/teeth', teethRoutes);
 
