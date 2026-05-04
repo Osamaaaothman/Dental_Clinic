@@ -9,6 +9,9 @@ import AppLayout from './components/layout/AppLayout.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import PatientTeeth from './pages/PatientTeeth.jsx';
+import SessionDetail from './pages/SessionDetail.jsx';
+import SessionsList from './pages/SessionsList.jsx';
+import SessionWizard from './pages/SessionWizard.jsx';
 import Patients from './pages/Patients.jsx';
 import SelectClinic from './pages/SelectClinic.jsx';
 import { useAuthStore } from './store/authStore.js';
@@ -57,6 +60,9 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/patients" element={<Patients />} />
               <Route path="/patients/:id" element={<PatientTeeth />} />
+              <Route path="/patients/:id/sessions" element={<SessionsList />} />
+              <Route path="/patients/:id/sessions/new" element={<SessionWizard />} />
+              <Route path="/patients/:id/sessions/:sessionId" element={<SessionDetail />} />
             </Route>
           </Route>
         </Routes>

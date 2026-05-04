@@ -222,6 +222,7 @@ function PatientTeeth() {
   const selectedClinic = useAuthStore((s) => s.selectedClinic);
   const pushToast = useUiStore((s) => s.pushToast);
   const setGlobalLoading = useUiStore((s) => s.setGlobalLoading);
+  const [activeTab, setActiveTab] = useState('teeth');
 
   const [patient, setPatient] = useState(null);
   const [teeth, setTeeth] = useState([]);
@@ -555,6 +556,49 @@ function PatientTeeth() {
           display: flex; align-items: center; justify-content: space-between;
           margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
         }
+        .pt-tabs {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 16px;
+        }
+        .pt-tab {
+          padding: 6px 12px;
+          border-radius: 10px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.04);
+          color: rgba(255,255,255,0.45);
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .pt-tab.active {
+          background: linear-gradient(135deg, rgba(14,165,233,0.16), rgba(99,102,241,0.12));
+          color: #38bdf8;
+          border-color: rgba(14,165,233,0.2);
+        }
+        .pt-tab:hover {
+          color: rgba(255,255,255,0.8);
+          border-color: rgba(255,255,255,0.12);
+        }
+        .pt-actions-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .pt-btn-primary {
+          display: inline-flex; align-items: center; gap: 6px;
+          background: linear-gradient(135deg, #0ea5e9, #6366f1); color: white;
+          border: none; border-radius: 10px; padding: 8px 18px;
+          font-size: 13px; font-weight: 600; font-family: 'Cairo', sans-serif;
+          cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+          box-shadow: 0 0 16px rgba(14,165,233,0.2);
+        }
+        .pt-btn-primary:hover { opacity: 0.88; }
+        .pt-btn-primary:active { transform: scale(0.97); }
         .pt-badge {
           display: inline-flex; align-items: center; padding: 4px 12px;
           border-radius: 8px; font-size: 11px; font-weight: 600;
@@ -612,15 +656,47 @@ function PatientTeeth() {
           </div>
         </div>
 
+        <div className="pt-tabs">
+          <button
+            type="button"
+            className={`pt-tab${activeTab === 'info' ? ' active' : ''}`}
+            onClick={() => setActiveTab('info')}
+          >
+            بيانات المريض
+          </button>
+          <button
+            type="button"
+            className={`pt-tab${activeTab === 'teeth' ? ' active' : ''}`}
+            onClick={() => setActiveTab('teeth')}
+          >
+            خريطة الأسنان
+          </button>
+          <button
+            type="button"
+            className={`pt-tab${activeTab === 'sessions' ? ' active' : ''}`}
+            onClick={() => navigate(`/patients/${id}/sessions`)}
+          >
+            الجلسات
+          </button>
+          <button
+            type="button"
+            className={`pt-tab${activeTab === 'attachments' ? ' active' : ''}`}
+            onClick={() => setActiveTab('attachments')}
+          >
+            المرفقات
+          </button>
+        </div>
+
         {pageError && (
           <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: '12px 16px', color: '#f87171', marginBottom: 16, fontSize: 13 }}>
             {pageError}
           </div>
         )}
 
-        <div className="pt-grid">
-          {/* ── Left: Teeth Chart ── */}
-          <div className="pt-card">
+        {activeTab === 'teeth' && (
+          <div className="pt-grid">
+            {/* ── Left: Teeth Chart ── */}
+            <div className="pt-card">
             {/* Quick stats */}
             <div className="pt-stats">
               <div className="pt-stat">
@@ -765,8 +841,8 @@ function PatientTeeth() {
             </div>
           </div>
 
-          {/* ── Right: Patient Info + selected ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* ── Right: Patient Info + selected ── */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="pt-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <div style={{
@@ -847,8 +923,46 @@ function PatientTeeth() {
                 </div>
               </div>
             )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'info' && (
+          <div className="pt-card">
+            <div className="pt-title">بيانات المريض</div>
+            <div className="pt-sub" style={{ marginBottom: 16 }}>
+              تحديث بيانات المريض الأساسية
+            </div>
+            <div className="pt-info-row">
+              <span className="pt-info-lbl">الاسم</span>
+              <span className="pt-info-val">{patient?.full_name || '—'}</span>
+            </div>
+            <div className="pt-info-row">
+              <span className="pt-info-lbl">الهاتف</span>
+              <span className="pt-info-val">{patient?.phone || '—'}</span>
+            </div>
+            <div className="pt-info-row">
+              <span className="pt-info-lbl">البريد</span>
+              <span className="pt-info-val">{patient?.email || '—'}</span>
+            </div>
+            <div className="pt-info-row">
+              <span className="pt-info-lbl">فصيلة الدم</span>
+              <span className="pt-info-val">{patient?.blood_type || '—'}</span>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'attachments' && (
+          <div className="pt-card">
+            <div className="pt-title">مرفقات المريض</div>
+            <div className="pt-sub" style={{ marginBottom: 16 }}>
+              سيتم ربط المرفقات من شاشة المريض والجلسات.
+            </div>
+            <button className="pt-btn-primary" onClick={() => navigate(`/patients/${id}/sessions/new`)}>
+              إضافة جلسة مع مرفقات
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Update Modal ── */}

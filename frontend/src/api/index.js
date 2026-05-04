@@ -85,4 +85,88 @@ export async function getToothHistoryRequest(toothId) {
   return data;
 }
 
+export async function getPatientSessionsRequest(patientId, { page = 1 } = {}) {
+  const { data } = await api.get(`/patients/${patientId}/sessions`, {
+    params: { page },
+  });
+  return data;
+}
+
+export async function getSessionRequest(sessionId) {
+  const { data } = await api.get(`/sessions/${sessionId}`);
+  return data;
+}
+
+export async function createSessionRequest(patientId, payload) {
+  const { data } = await api.post(`/patients/${patientId}/sessions`, payload);
+  return data;
+}
+
+export async function updateSessionRequest(sessionId, payload) {
+  const { data } = await api.put(`/sessions/${sessionId}`, payload);
+  return data;
+}
+
+export async function deleteSessionRequest(sessionId) {
+  const { data } = await api.delete(`/sessions/${sessionId}`);
+  return data;
+}
+
+export async function getSessionPaymentsRequest(sessionId) {
+  const { data } = await api.get(`/sessions/${sessionId}/payments`);
+  return data;
+}
+
+export async function addSessionPaymentRequest(sessionId, payload) {
+  const { data } = await api.post(`/sessions/${sessionId}/payments`, payload);
+  return data;
+}
+
+export async function getPatientPaymentsRequest(patientId) {
+  const { data } = await api.get(`/patients/${patientId}/payments`);
+  return data;
+}
+
+export async function refundPaymentRequest(paymentId) {
+  const { data } = await api.delete(`/payments/${paymentId}`);
+  return data;
+}
+
+export async function getAttachmentsRequest({ patientId, sessionId } = {}) {
+  const { data } = await api.get('/attachments', {
+    params: {
+      patient_id: patientId,
+      session_id: sessionId || undefined,
+    },
+  });
+  return data;
+}
+
+export async function uploadAttachmentRequest({ patientId, sessionId, fileType, description, file }) {
+  const formData = new FormData();
+  formData.append('patient_id', patientId);
+  if (sessionId) {
+    formData.append('session_id', sessionId);
+  }
+  if (fileType) {
+    formData.append('file_type', fileType);
+  }
+  if (description) {
+    formData.append('description', description);
+  }
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const { data } = await api.post('/attachments', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
+export async function deleteAttachmentRequest(attachmentId) {
+  const { data } = await api.delete(`/attachments/${attachmentId}`);
+  return data;
+}
+
 export default api;

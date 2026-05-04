@@ -89,6 +89,7 @@ export async function createSession(data) {
     diagnosis,
     treatment_done,
     teeth_treated = [],
+    teeth_updates = [],
     medications,
     next_visit_notes,
     amount_charged = 0,
@@ -112,7 +113,21 @@ export async function createSession(data) {
     throw new ValidationError('teeth_treated must be an array');
   }
 
-  const validTeeth = teeth_treated.filter(t => FDI_NUMBERS.has(Number(t)));
+  if (teeth_updates && !Array.isArray(teeth_updates)) {
+    throw new ValidationError('teeth_updates must be an array');
+  }
+
+  const mergedTeeth = [
+    ...teeth_treated,
+    ...(Array.isArray(teeth_updates) ? teeth_updates.map((item) => item?.tooth_number) : []),
+  ];
+  const validTeeth = Array.from(
+    new Set(
+      mergedTeeth
+        .map((t) => Number(t))
+        .filter((t) => FDI_NUMBERS.has(t))
+    )
+  );
   const teethJsonb = JSON.stringify(validTeeth);
 
   if (payment_status && !ALLOWED_PAYMENT_STATUSES.includes(payment_status)) {
@@ -139,6 +154,48 @@ export async function createSession(data) {
     ]);
 
     const session = rows[0];
+
+    if (teeth_updates?.length) {
+      for (const update of teeth_updates) {
+        if (!update || update.tooth_number === undefined || !update.status) {
+          throw new ValidationError('Each teeth_updates item must include tooth_number and status');
+        }
+
+        const toothNumber = Number(update.tooth_number);
+        if (!FDI_NUMBERS.has(toothNumber)) {
+          throw new ValidationError('Invalid tooth_number in teeth_updates');
+        }
+
+        if (!ALLOWED_STATUSES.includes(update.status)) {
+          throw new ValidationError(`status must be one of: ${ALLOWED_STATUSES.join(', ')}`);
+        }
+
+        const { rows: toothRows } = await client.query(`
+          SELECT id, status, notes FROM teeth
+          WHERE patient_id = $1 AND tooth_number = $2
+          LIMIT 1
+        `, [patient_id, toothNumber]);
+
+        if (!toothRows[0]) {
+          throw new NotFoundError('Tooth not found');
+        }
+
+        const oldStatus = toothRows[0].status;
+
+        await client.query(`
+          UPDATE teeth
+          SET status = $1, notes = $2, updated_at = now()
+          WHERE id = $3
+        `, [update.status, update.notes ?? toothRows[0].notes ?? null, toothRows[0].id]);
+
+        if (oldStatus !== update.status) {
+          await client.query(`
+            INSERT INTO tooth_history (tooth_id, session_id, old_status, new_status, notes)
+            VALUES ($1, $2, $3, $4, $5)
+          `, [toothRows[0].id, session.id, oldStatus, update.status, update.notes || null]);
+        }
+      }
+    }
 
     await client.query('COMMIT');
 

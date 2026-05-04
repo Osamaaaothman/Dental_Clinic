@@ -4,6 +4,7 @@ import express from 'express';
 import authRoutes from './routes/auth.js';
 import clinicsRoutes from './routes/clinics.js';
 import sessionsRoutes from './routes/sessions.js';
+import paymentsRoutes from './routes/payments.js';
 import attachmentsRoutes from './routes/attachments.js';
 import patientsRoutes from './routes/patients.js';
 import teethRoutes from './routes/teeth.js';
@@ -73,10 +74,11 @@ app.get('/api/debug', async (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/clinics', verifyToken, clinicsRoutes);
-app.use('/api/sessions', sessionsRoutes);
+app.use('/api', sessionsRoutes);
 app.use('/api/attachments', attachmentsRoutes);
 app.use('/api/patients', patientsRoutes);
 app.use('/api/teeth', teethRoutes);
+app.use('/api', paymentsRoutes);
 
 app.use((err, _req, res, _next) => {
   const status = err.statusCode || 500;

@@ -14,8 +14,8 @@ router.use(verifyToken);
 
 router.get('/patients/:id/sessions', getSessions);
 router.post('/patients/:id/sessions', createSession);
-router.get('/:id', getSessionById);
-router.put('/:id', updateSession);
-router.delete('/:id', deleteSession);
+router.get('/sessions/:id', getSessionById);
+router.put('/sessions/:id', updateSession);
+router.delete('/sessions/:id', deleteSession);
 
 export default router;
