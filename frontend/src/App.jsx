@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import PatientTeeth from './pages/PatientTeeth.jsx';
 import Appointments from './pages/Appointments.jsx';
+import AppointmentForm from './pages/AppointmentForm.jsx';
+import AppointmentDetail from './pages/AppointmentDetail.jsx';
 import SessionDetail from './pages/SessionDetail.jsx';
 import SessionsList from './pages/SessionsList.jsx';
 import SessionsOverview from './pages/SessionsOverview.jsx';
@@ -61,6 +63,8 @@ function App() {
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/appointments" element={<Appointments />} />
+              <Route path="/appointments/new" element={<AppointmentForm />} />
+              <Route path="/appointments/:id" element={<AppointmentDetail />} />
               <Route path="/patients" element={<Patients />} />
               <Route path="/patients/:id" element={<PatientTeeth />} />
               <Route path="/sessions" element={<SessionsOverview />} />

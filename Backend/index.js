@@ -8,6 +8,7 @@ import paymentsRoutes from './routes/payments.js';
 import attachmentsRoutes from './routes/attachments.js';
 import patientsRoutes from './routes/patients.js';
 import teethRoutes from './routes/teeth.js';
+import appointmentsRoutes from './routes/appointments.js';
 import { verifyToken } from './middleware/auth.js';
 import { pool } from './db/index.js';
 
@@ -75,6 +76,7 @@ app.get('/api/debug', async (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/clinics', verifyToken, clinicsRoutes);
 app.use('/api', sessionsRoutes);
+app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/attachments', attachmentsRoutes);
 app.use('/api/patients', patientsRoutes);
 app.use('/api/teeth', teethRoutes);

@@ -169,4 +169,37 @@ export async function deleteAttachmentRequest(attachmentId) {
   return data;
 }
 
+export async function getAppointmentsRequest({ clinicId, dateFrom, dateTo, status, page = 1 } = {}) {
+  const { data } = await api.get('/appointments', {
+    params: {
+      clinic_id: clinicId,
+      date_from: dateFrom || undefined,
+      date_to: dateTo || undefined,
+      status: status || undefined,
+      page,
+    },
+  });
+  return data;
+}
+
+export async function createAppointmentRequest(payload) {
+  const { data } = await api.post('/appointments', payload);
+  return data;
+}
+
+export async function getAppointmentRequest(id) {
+  const { data } = await api.get(`/appointments/${id}`);
+  return data;
+}
+
+export async function updateAppointmentRequest(id, payload) {
+  const { data } = await api.put(`/appointments/${id}`, payload);
+  return data;
+}
+
+export async function deleteAppointmentRequest(id) {
+  const { data } = await api.delete(`/appointments/${id}`);
+  return data;
+}
+
 export default api;

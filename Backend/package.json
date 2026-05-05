@@ -26,7 +26,10 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.1.1",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "resend": "^3.4.0",
+    "@react-email/components": "^0.0.33",
+    "@react-email/render": "^0.0.13"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

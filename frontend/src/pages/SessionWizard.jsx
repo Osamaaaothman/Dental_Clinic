@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AnimatedPage from '../components/AnimatedPage.jsx';
 import MultiSelectTeethChart from '../components/MultiSelectTeethChart.jsx';
 import {
   createSessionRequest,
+  getAppointmentRequest,
   getPatientRequest,
   getPatientTeethRequest,
   uploadAttachmentRequest,
@@ -31,11 +32,13 @@ const FILE_TYPES = [
 export default function SessionWizard() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const pushToast = useUiStore((s) => s.pushToast);
   const setGlobalLoading = useUiStore((s) => s.setGlobalLoading);
 
   const [step, setStep] = useState(1);
   const [patient, setPatient] = useState(null);
+  const [appointment, setAppointment] = useState(null);
   const [teeth, setTeeth] = useState([]);
 
   const [form, setForm] = useState({
@@ -66,13 +69,14 @@ export default function SessionWizard() {
     { id: 4, label: 'المالية' },
   ]), []);
 
-  async function loadData() {
-    if (!id) return;
+  async function loadData(patientIdOverride) {
+    const patientId = patientIdOverride || id;
+    if (!patientId) return;
     setGlobalLoading(true);
     try {
       const [patientData, teethData] = await Promise.all([
-        getPatientRequest(id),
-        getPatientTeethRequest(id),
+        getPatientRequest(patientId),
+        getPatientTeethRequest(patientId),
       ]);
       setPatient(patientData.patient || null);
       setTeeth(teethData.teeth || []);
@@ -84,6 +88,28 @@ export default function SessionWizard() {
   }
 
   useEffect(() => {
+    const appointmentId = searchParams.get('appointmentId');
+    if (appointmentId) {
+      (async () => {
+        setGlobalLoading(true);
+        try {
+          const data = await getAppointmentRequest(appointmentId);
+          const appointmentData = data.appointment;
+          setAppointment(appointmentData || null);
+          const patientId = appointmentData?.patient_id || id;
+          await loadData(patientId);
+          if (appointmentData?.appointment_date) {
+            updateFormField('session_date', appointmentData.appointment_date.slice(0, 10));
+          }
+        } catch (err) {
+          pushToast({ type: 'error', message: err.response?.data?.message || 'تعذر تحميل بيانات الموعد' });
+          await loadData();
+        } finally {
+          setGlobalLoading(false);
+        }
+      })();
+      return;
+    }
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -157,14 +183,19 @@ export default function SessionWizard() {
       teeth_updates: Object.values(teethUpdates),
     };
 
+    if (appointment?.id) {
+      payload.appointment_id = appointment.id;
+    }
+
     setGlobalLoading(true);
     try {
-      const { session } = await createSessionRequest(id, payload);
+      const patientId = appointment?.patient_id || id;
+      const { session } = await createSessionRequest(patientId, payload);
 
       if (attachments.length) {
         for (const attachment of attachments) {
           await uploadAttachmentRequest({
-            patientId: id,
+            patientId,
             sessionId: session.id,
             fileType: attachment.file_type,
             description: attachment.description,
@@ -174,7 +205,7 @@ export default function SessionWizard() {
       }
 
       pushToast({ type: 'success', message: 'تم إنشاء الجلسة بنجاح' });
-      navigate(`/patients/${id}/sessions/${session.id}`);
+      navigate(`/patients/${patientId}/sessions/${session.id}`);
     } catch (err) {
       pushToast({ type: 'error', message: err.response?.data?.message || 'تعذر إنشاء الجلسة' });
     } finally {

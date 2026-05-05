@@ -37,6 +37,17 @@ function SessionsIcon({ className = '' }) {
   );
 }
 
+function CalendarIcon({ className = '' }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M7 3v4M17 3v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M7 11h10M7 15h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
 function SettingsIcon({ className = '' }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
@@ -72,6 +83,7 @@ function ToothMark() {
 
 const NAV_ITEMS = [
   { label: 'لوحة التحكم', to: '/dashboard', icon: DashboardIcon },
+  { label: 'المواعيد', to: '/appointments', icon: CalendarIcon },
   { label: 'المرضى', to: '/patients', icon: PatientsIcon },
   { label: 'الجلسات', to: '/sessions', icon: SessionsIcon },
 ];

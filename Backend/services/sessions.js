@@ -86,6 +86,7 @@ export async function createSession(data) {
     patient_id,
     clinic_id,
     session_date,
+    appointment_id = null,
     chief_complaint,
     diagnosis,
     treatment_done,
@@ -155,6 +156,35 @@ export async function createSession(data) {
     ]);
 
     const session = rows[0];
+
+    let linkedAppointmentId = appointment_id;
+    if (!linkedAppointmentId) {
+      const { rows: appointmentRows } = await client.query(`
+        SELECT id FROM appointments
+        WHERE patient_id = $1
+          AND clinic_id = $2
+          AND DATE(appointment_date) = DATE($3)
+          AND status = 'scheduled'
+        ORDER BY appointment_date ASC
+        LIMIT 1
+      `, [patient_id, clinic_id, session_date]);
+      linkedAppointmentId = appointmentRows[0]?.id || null;
+    }
+
+    if (linkedAppointmentId) {
+      const { rowCount } = await client.query(`
+        UPDATE appointments
+        SET session_id = $1, status = 'completed'
+        WHERE id = $2
+          AND clinic_id = $3
+          AND patient_id = $4
+          AND status = 'scheduled'
+      `, [session.id, linkedAppointmentId, clinic_id, patient_id]);
+
+      if (!rowCount && appointment_id) {
+        throw new NotFoundError('Appointment not found');
+      }
+    }
 
     if (teeth_updates?.length) {
       for (const update of teeth_updates) {

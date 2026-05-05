@@ -22,6 +22,7 @@ function AppLayout() {
 
   const title = useMemo(() => {
     if (location.pathname.startsWith('/patients/')) return 'خريطة الأسنان';
+    if (location.pathname.startsWith('/appointments')) return 'المواعيد';
     return PAGE_TITLES[location.pathname] || 'لوحة التحكم';
   }, [location.pathname]);
 
