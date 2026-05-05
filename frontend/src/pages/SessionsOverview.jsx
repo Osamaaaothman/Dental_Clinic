@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AnimatedPage from '../components/AnimatedPage.jsx';
 import SessionCard from '../components/SessionCard.jsx';
-import { getPatientsRequest, getPatientSessionsRequest } from '../api/index.js';
+import { getPatientsRequest, getPatientSessionsRequest, getSesstionsFoClinic } from '../api/index.js';
 import { useAuthStore } from '../store/authStore.js';
 import { useUiStore } from '../store/uiStore.js';
 
@@ -27,14 +27,15 @@ export default function SessionsOverview() {
       setGlobalLoading(true);
       setPageError(null);
       try {
-        const patientData = await getPatientsRequest({ clinicId, page: 1 });
-        const firstPatient = patientData?.patients?.[0];
-        if (!firstPatient?.id) {
-          setSessions([]);
-          return;
-        }
-        const sessionsData = await getPatientSessionsRequest(firstPatient.id, { page: 1 });
-        setSessions(sessionsData.sessions || []);
+        // const patientData = await getPatientsRequest({ clinicId, page: 1 });
+        // const firstPatient = patientData?.patients?.[0];
+        // if (!firstPatient?.id) {
+        //   setSessions([]);
+        //   return;
+        // }
+        const sessionsData = await getSesstionsFoClinic(clinicId, { page: 1 });
+        console.log(sessionsData.sessions)
+        setSessions(sessionsData.sessions.sessions || []);
       } catch (err) {
         setPageError(err.response?.data?.message || 'تعذر تحميل الجلسات');
         setSessions([]);

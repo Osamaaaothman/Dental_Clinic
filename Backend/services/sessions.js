@@ -56,6 +56,35 @@ export async function getSessions(patient_id, clinic_id, { page = 1 } = {}) {
   };
 }
 
+
+export async function getSessionsByClinic( clinic_id, { page = 1 } = {}){
+  console.log(clinic_id,"here")
+  if ( !clinic_id) {
+    throw new ValidationError('clinic_id are required');
+  }
+  const pageNum = Math.max(1, parseInt(page) || 1);
+  const offset = (pageNum - 1) * PAGE_SIZE;
+
+    const countQuery = 'SELECT COUNT(*) FROM sessions WHERE  clinic_id = $1';
+  const { rows: countRows } = await query(countQuery, [ clinic_id]);
+  const total = parseInt(countRows[0].count);
+const dataQuery = `
+    SELECT s.*,
+      (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE session_id = s.id) as amount_paid
+    FROM sessions s
+    WHERE  s.clinic_id = $1
+    ORDER BY s.session_date DESC, s.created_at DESC
+    LIMIT $2 OFFSET $3
+  `;
+    const { rows } = await query(dataQuery, [ clinic_id, PAGE_SIZE, offset]);
+  return {
+    sessions: rows,
+    total,
+    page: pageNum,
+    totalPages: Math.ceil(total / PAGE_SIZE)
+  };
+}
+
 export async function getSessionById(session_id, clinic_id) {
   if (!session_id || !clinic_id) {
     throw new ValidationError('session_id and clinic_id are required');

@@ -54,7 +54,15 @@ export async function getPatientRequest(id) {
   const { data } = await api.get(`/patients/${id}`);
   return data;
 }
-
+export async function getSesstionsFoClinic(clinicId,{ page = 1 } = {}){
+  const {data} = await api.get("/sessions",{
+    params:{
+      page
+    }
+  });
+  console.log(data);
+  return data;
+}
 export async function createPatientRequest(payload) {
   const { data } = await api.post('/patients', payload);
   return data;

@@ -19,6 +19,9 @@ export async function getSessions(req, res, next) {
   }
 }
 
+
+
+
 export async function getSessionById(req, res, next) {
   try {
     const { id: session_id } = req.params;
@@ -84,6 +87,21 @@ export async function deleteSession(req, res, next) {
     await sessionService.deleteSession(session_id, clinic_id);
     res.json({ message: 'Session deleted successfully' });
   } catch (error) {
+    next(error);
+  }
+}
+
+export async function getAllClinicSessions(req, res, next) {
+  try {
+    const clinicId=req.user.clinicId;
+     if (!clinicId) {
+      throw new ValidationError('No clinic selected');
+    }
+    const { page } = req.query;
+    const sessions=await sessionService.getSessionsByClinic(clinicId,{page});
+
+    res.json({message:"Sessions retreved !",sessions})
+  }catch(error){
     next(error);
   }
 }
