@@ -1019,76 +1019,460 @@ function PatientTeeth() {
 
         {activeTab === 'attachments' && (
           <div className="pt-card">
-            <div className="pt-title">مرفقات المريض</div>
-            <div className="pt-sub" style={{ marginBottom: 16 }}>
-              رفع ملفات عامة للمريض (غير مرتبطة بجلسة).
+            <style>{`
+              /* ── File drop zone ── */
+              .att-drop-zone {
+                border: 2px dashed rgba(14,165,233,0.25);
+                border-radius: 14px;
+                background: rgba(14,165,233,0.04);
+                padding: 28px 20px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+              }
+              .att-drop-zone:hover,
+              .att-drop-zone.has-file {
+                border-color: rgba(14,165,233,0.5);
+                background: rgba(14,165,233,0.08);
+              }
+              .att-drop-zone input[type="file"] {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+              }
+              .att-drop-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                background: rgba(14,165,233,0.12);
+                border: 1px solid rgba(14,165,233,0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 10px;
+                color: #38bdf8;
+              }
+              .att-drop-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: rgba(255,255,255,0.7);
+                margin-bottom: 4px;
+              }
+              .att-drop-sub {
+                font-size: 11px;
+                color: rgba(255,255,255,0.3);
+              }
+              .att-file-chosen {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(14,165,233,0.1);
+                border: 1px solid rgba(14,165,233,0.22);
+                border-radius: 10px;
+                padding: 8px 12px;
+                margin-top: 10px;
+                font-size: 12px;
+                color: #38bdf8;
+                font-weight: 500;
+              }
+              .att-file-chosen-name {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+              .att-file-clear {
+                background: none;
+                border: none;
+                color: rgba(255,255,255,0.35);
+                cursor: pointer;
+                padding: 2px;
+                display: flex;
+                align-items: center;
+                transition: color 0.15s;
+                font-family: 'Cairo', sans-serif;
+              }
+              .att-file-clear:hover { color: #f87171; }
+
+              /* ── Upload form grid ── */
+              .att-form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-bottom: 12px;
+              }
+              @media (max-width: 600px) { .att-form-grid { grid-template-columns: 1fr; } }
+
+              .att-field { display: flex; flex-direction: column; gap: 7px; }
+              .att-label {
+                font-size: 12px;
+                font-weight: 500;
+                color: rgba(255,255,255,0.4);
+              }
+              .att-input, .att-select {
+                background: #1a1d28;
+                border: 1px solid rgba(255,255,255,0.09);
+                border-radius: 10px;
+                padding: 9px 14px;
+                color: #f1f5f9;
+                font-family: 'Cairo', sans-serif;
+                font-size: 13px;
+                direction: rtl;
+                width: 100%;
+                box-sizing: border-box;
+                outline: none;
+                transition: border-color 0.2s;
+              }
+              .att-input::placeholder { color: rgba(255,255,255,0.22); }
+              .att-input:focus, .att-select:focus { border-color: rgba(14,165,233,0.4); }
+              .att-select option { background: #1a1d28; }
+
+              .att-upload-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                background: linear-gradient(135deg, #0ea5e9, #6366f1);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                padding: 10px 20px;
+                font-size: 13px;
+                font-weight: 600;
+                font-family: 'Cairo', sans-serif;
+                cursor: pointer;
+                transition: opacity 0.2s, transform 0.15s;
+                box-shadow: 0 0 16px rgba(14,165,233,0.22);
+              }
+              .att-upload-btn:hover { opacity: 0.88; }
+              .att-upload-btn:active { transform: scale(0.97); }
+              .att-upload-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+              }
+
+              /* ── Divider ── */
+              .att-divider {
+                height: 1px;
+                background: rgba(255,255,255,0.06);
+                margin: 20px 0;
+              }
+
+              /* ── Attachment list ── */
+              .att-list { display: flex; flex-direction: column; gap: 10px; }
+
+              .att-item {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                background: #1a1d28;
+                border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 12px;
+                padding: 12px 16px;
+                transition: border-color 0.2s;
+              }
+              .att-item:hover { border-color: rgba(255,255,255,0.13); }
+
+              .att-item-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                font-size: 18px;
+              }
+
+              .att-item-info { flex: 1; min-width: 0; }
+              .att-item-name {
+                font-size: 13px;
+                font-weight: 700;
+                color: #f1f5f9;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+              .att-item-desc {
+                font-size: 12px;
+                color: rgba(255,255,255,0.4);
+                margin-top: 2px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+              .att-item-date {
+                font-size: 11px;
+                color: rgba(255,255,255,0.22);
+                margin-top: 3px;
+              }
+
+              .att-item-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+              .att-btn-open {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: rgba(14,165,233,0.1);
+                color: #38bdf8;
+                border: 1px solid rgba(14,165,233,0.2);
+                border-radius: 8px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 600;
+                font-family: 'Cairo', sans-serif;
+                cursor: pointer;
+                text-decoration: none;
+                transition: all 0.2s;
+              }
+              .att-btn-open:hover { background: rgba(14,165,233,0.18); }
+
+              .att-btn-delete {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: rgba(239,68,68,0.08);
+                color: rgba(255,255,255,0.35);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 8px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 500;
+                font-family: 'Cairo', sans-serif;
+                cursor: pointer;
+                transition: all 0.2s;
+              }
+              .att-btn-delete:hover {
+                background: rgba(239,68,68,0.16);
+                color: #f87171;
+                border-color: rgba(239,68,68,0.25);
+              }
+
+              .att-empty {
+                border: 1px dashed rgba(255,255,255,0.08);
+                border-radius: 12px;
+                padding: 32px 16px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+              }
+              .att-empty-icon { opacity: 0.2; }
+              .att-empty-text { font-size: 13px; color: rgba(255,255,255,0.28); }
+
+              .att-type-badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 2px 8px;
+                border-radius: 5px;
+                font-size: 10px;
+                font-weight: 700;
+                font-family: 'Cairo', sans-serif;
+                margin-top: 3px;
+              }
+            `}</style>
+
+            {/* Header */}
+            <div style={{ marginBottom: 20 }}>
+              <div className="pt-title">مرفقات المريض</div>
+              <div className="pt-sub" style={{ marginTop: 4 }}>
+                رفع وإدارة ملفات المريض — أشعة، صور، مستندات
+              </div>
             </div>
 
-            <form onSubmit={handleUploadAttachment} style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
-              <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
-                <div>
-                  <label className="pt-field-label">نوع الملف</label>
-                  <select
-                    className="pt-textarea"
-                    style={{ minHeight: 'unset' }}
-                    value={attachmentDraft.file_type}
-                    onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, file_type: e.target.value }))}
-                  >
-                    <option value="xray">أشعة</option>
-                    <option value="photo">صورة</option>
-                    <option value="document">مستند</option>
-                    <option value="other">أخرى</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="pt-field-label">الوصف</label>
-                  <input
-                    className="pt-textarea"
-                    style={{ minHeight: 'unset' }}
-                    value={attachmentDraft.description}
-                    onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="اختياري"
-                  />
-                </div>
+            {/* Upload form */}
+            <div className="att-form-grid">
+              <div className="att-field">
+                <label className="att-label">نوع الملف</label>
+                <select
+                  className="att-select"
+                  value={attachmentDraft.file_type}
+                  onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, file_type: e.target.value }))}
+                >
+                  <option value="xray">🩻 أشعة</option>
+                  <option value="photo">📷 صورة</option>
+                  <option value="document">📄 مستند</option>
+                  <option value="other">📎 أخرى</option>
+                </select>
               </div>
-              <div>
-                <label className="pt-field-label">الملف</label>
+              <div className="att-field">
+                <label className="att-label">وصف الملف (اختياري)</label>
                 <input
-                  type="file"
-                  className="pt-textarea"
-                  style={{ minHeight: 'unset' }}
-                  onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, file: e.target.files?.[0] || null }))}
+                  className="att-input"
+                  value={attachmentDraft.description}
+                  onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, description: e.target.value }))}
+                  placeholder="مثال: أشعة بانورامية"
                 />
               </div>
-              <button className="pt-btn-primary" type="submit">
+            </div>
+
+            {/* File drop zone */}
+            <div className={`att-drop-zone${attachmentDraft.file ? ' has-file' : ''}`}>
+              <input
+                type="file"
+                onChange={(e) => setAttachmentDraft((prev) => ({ ...prev, file: e.target.files?.[0] || null }))}
+              />
+              <div className="att-drop-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              {attachmentDraft.file ? (
+                <>
+                  <div className="att-drop-label" style={{ color: '#38bdf8' }}>تم اختيار الملف</div>
+                  <div className="att-drop-sub">{attachmentDraft.file.name}</div>
+                </>
+              ) : (
+                <>
+                  <div className="att-drop-label">اضغط لاختيار ملف أو اسحبه هنا</div>
+                  <div className="att-drop-sub">يدعم: صور، PDF، JPEG، PNG وغيرها</div>
+                </>
+              )}
+            </div>
+
+            {/* Selected file chip */}
+            {attachmentDraft.file && (
+              <div className="att-file-chosen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <span className="att-file-chosen-name">{attachmentDraft.file.name}</span>
+                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>
+                  {(attachmentDraft.file.size / 1024).toFixed(0)} KB
+                </span>
+                <button
+                  type="button"
+                  className="att-file-clear"
+                  onClick={() => setAttachmentDraft((prev) => ({ ...prev, file: null }))}
+                  title="إزالة الملف"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+
+            {/* Submit */}
+            <div style={{ marginTop: 14 }}>
+              <button
+                type="button"
+                className="att-upload-btn"
+                disabled={!attachmentDraft.file}
+                onClick={handleUploadAttachment}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
                 رفع الملف
               </button>
-            </form>
+            </div>
 
-            <div style={{ display: 'grid', gap: 10 }}>
-              {attachments.map((item) => (
-                <div key={item.id} className="pt-selected-card" style={{ padding: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{item.file_type}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{item.description || 'بدون وصف'}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{item.uploaded_at?.slice(0, 10)}</div>
+            <div className="att-divider" />
+
+            {/* Attachments list */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', marginBottom: 2 }}>
+                الملفات المرفوعة
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                {attachments.length > 0 ? `${attachments.length} ملف` : 'لا توجد ملفات بعد'}
+              </div>
+            </div>
+
+            <div className="att-list">
+              {attachments.map((item) => {
+                const typeConfig = {
+                  xray:     { icon: '🩻', bg: 'rgba(56,189,248,0.1)',  border: 'rgba(56,189,248,0.2)',  badge: { bg: 'rgba(56,189,248,0.12)', color: '#38bdf8', label: 'أشعة' } },
+                  photo:    { icon: '📷', bg: 'rgba(168,85,247,0.1)', border: 'rgba(168,85,247,0.2)', badge: { bg: 'rgba(168,85,247,0.12)', color: '#c084fc', label: 'صورة' } },
+                  document: { icon: '📄', bg: 'rgba(234,179,8,0.1)',  border: 'rgba(234,179,8,0.2)',  badge: { bg: 'rgba(234,179,8,0.12)',  color: '#fbbf24', label: 'مستند' } },
+                  other:    { icon: '📎', bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.09)', badge: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', label: 'أخرى' } },
+                };
+                const cfg = typeConfig[item.file_type] || typeConfig.other;
+
+                return (
+                  <div key={item.id} className="att-item">
+                    <div
+                      className="att-item-icon"
+                      style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
+                    >
+                      {cfg.icon}
                     </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <a className="pt-btn-ghost" href={item.file_url} target="_blank" rel="noreferrer">
+
+                    <div className="att-item-info">
+                      <div className="att-item-name">
+                        {item.description || item.file_type}
+                      </div>
+                      <div className="att-item-desc">
+                        {item.description && (
+                          <span
+                            className="att-type-badge"
+                            style={{ background: cfg.badge.bg, color: cfg.badge.color }}
+                          >
+                            {cfg.badge.label}
+                          </span>
+                        )}
+                      </div>
+                      <div className="att-item-date">
+                        {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString('ar-SA') : '—'}
+                      </div>
+                    </div>
+
+                    <div className="att-item-actions">
+                      <a
+                        className="att-btn-open"
+                        href={item.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
                         فتح
                       </a>
-                      <button type="button" className="pt-btn-ghost" onClick={() => handleDeleteAttachment(item.id)}>
+                      <button
+                        type="button"
+                        className="att-btn-delete"
+                        onClick={() => handleDeleteAttachment(item.id)}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14H6L5 6"/>
+                          <path d="M10 11v6M14 11v6"/>
+                          <path d="M9 6V4h6v2"/>
+                        </svg>
                         حذف
                       </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {attachments.length === 0 && (
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-                  لا توجد ملفات حالياً.
+                <div className="att-empty">
+                  <div className="att-empty-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="12" y1="18" x2="12" y2="12"/>
+                      <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                  </div>
+                  <div className="att-empty-text">لا توجد ملفات مرفوعة بعد</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.18)' }}>
+                    ارفع أشعة أو صورة أو مستند من النموذج أعلاه
+                  </div>
                 </div>
               )}
             </div>
@@ -1154,3 +1538,7 @@ function PatientTeeth() {
 }
 
 export default PatientTeeth;
+
+
+
+
