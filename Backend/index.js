@@ -14,6 +14,7 @@ import { pool } from './db/index.js';
 
 dotenv.config();
 
+//redeploy
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
